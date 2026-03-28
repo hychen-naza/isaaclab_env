@@ -12,7 +12,9 @@ isaacsim_scene/
 ├── scripts/
 │   └── prepare_objects.py      # asset preparation pipeline (mesh → USD)
 ├── preprocess_meshes.py        # center mesh + CoACD decomposition + URDF
-├── obj2urdf.py                 # CoACD → URDF helper
+├── obj_utils/
+│   ├── prepare_objects.sh      # legacy bash asset pipeline
+│   └── obj2urdf.py             # CoACD → URDF helper
 ├── setup_assets.py             # URDF → USD conversion via Isaac Lab
 ├── train.py                    # PPO training entry point
 ├── vis.py                      # scene visualisation / debugging

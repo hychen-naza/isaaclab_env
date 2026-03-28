@@ -7,7 +7,7 @@ from pathlib import Path
 import trimesh as tm
 
 BASE = Path(__file__).parent
-sys.path.insert(0, str(BASE))
+sys.path.insert(0, str(BASE / "obj_utils"))
 from obj2urdf import process_obj_onelink, CoacdArgs, URDFArgs
 
 

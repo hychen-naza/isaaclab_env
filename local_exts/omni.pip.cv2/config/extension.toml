@@ -1,0 +1,5 @@
+[package]
+name = "omni.pip.cv2"
+version = "1.0.0"
+title = "omni.pip.cv2 (stub)"
+description = "Stub satisfying dependency"

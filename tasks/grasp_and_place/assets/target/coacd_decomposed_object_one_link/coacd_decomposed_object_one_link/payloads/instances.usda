@@ -1,0 +1,527 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    doc = """Generated from Composed Stage of root layer /tmp/tmpgp67b7e2/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/grasp_and_place/assets/target/coacd_decomposed_object_one_link/usdex/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/grasp_and_place/assets/target/coacd_decomposed_object_one_link/temp/coacd_decomposed_object_one_link.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/grasp_and_place/assets/target/coacd_decomposed_object_one_link/coacd_decomposed_object_one_link/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "Instances"
+{
+    def Xform "frame_000000_object_mesh_target_centered" (
+        prepend references = @./geometries.usd@</Geometries/frame_000000_object_mesh_target_centered>
+    )
+    {
+        over "frame_000000_object_mesh_target_centered" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/frame_000000_object_mesh_target_centered/VisualMaterials/material_0>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_0" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_0>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "geometry_0" (
+        prepend references = @./geometries.usd@</Geometries/geometry_0>
+    )
+    {
+        over "geometry_0" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_1" (
+        prepend references = @./geometries.usd@</Geometries/geometry_1>
+    )
+    {
+        over "geometry_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_2" (
+        prepend references = @./geometries.usd@</Geometries/geometry_2>
+    )
+    {
+        over "geometry_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_3" (
+        prepend references = @./geometries.usd@</Geometries/geometry_3>
+    )
+    {
+        over "geometry_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_4" (
+        prepend references = @./geometries.usd@</Geometries/geometry_4>
+    )
+    {
+        over "geometry_4" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_5" (
+        prepend references = @./geometries.usd@</Geometries/geometry_5>
+    )
+    {
+        over "geometry_5" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_6" (
+        prepend references = @./geometries.usd@</Geometries/geometry_6>
+    )
+    {
+        over "geometry_6" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_7" (
+        prepend references = @./geometries.usd@</Geometries/geometry_7>
+    )
+    {
+        over "geometry_7" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_8" (
+        prepend references = @./geometries.usd@</Geometries/geometry_8>
+    )
+    {
+        over "geometry_8" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_9" (
+        prepend references = @./geometries.usd@</Geometries/geometry_9>
+    )
+    {
+        over "geometry_9" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_10" (
+        prepend references = @./geometries.usd@</Geometries/geometry_10>
+    )
+    {
+        over "geometry_10" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_11" (
+        prepend references = @./geometries.usd@</Geometries/geometry_11>
+    )
+    {
+        over "geometry_11" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_12" (
+        prepend references = @./geometries.usd@</Geometries/geometry_12>
+    )
+    {
+        over "geometry_12" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_13" (
+        prepend references = @./geometries.usd@</Geometries/geometry_13>
+    )
+    {
+        over "geometry_13" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_14" (
+        prepend references = @./geometries.usd@</Geometries/geometry_14>
+    )
+    {
+        over "geometry_14" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_15" (
+        prepend references = @./geometries.usd@</Geometries/geometry_15>
+    )
+    {
+        over "geometry_15" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_16" (
+        prepend references = @./geometries.usd@</Geometries/geometry_16>
+    )
+    {
+        over "geometry_16" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_17" (
+        prepend references = @./geometries.usd@</Geometries/geometry_17>
+    )
+    {
+        over "geometry_17" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_18" (
+        prepend references = @./geometries.usd@</Geometries/geometry_18>
+    )
+    {
+        over "geometry_18" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_19" (
+        prepend references = @./geometries.usd@</Geometries/geometry_19>
+    )
+    {
+        over "geometry_19" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_20" (
+        prepend references = @./geometries.usd@</Geometries/geometry_20>
+    )
+    {
+        over "geometry_20" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_21" (
+        prepend references = @./geometries.usd@</Geometries/geometry_21>
+    )
+    {
+        over "geometry_21" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_22" (
+        prepend references = @./geometries.usd@</Geometries/geometry_22>
+    )
+    {
+        over "geometry_22" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_23" (
+        prepend references = @./geometries.usd@</Geometries/geometry_23>
+    )
+    {
+        over "geometry_23" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_24" (
+        prepend references = @./geometries.usd@</Geometries/geometry_24>
+    )
+    {
+        over "geometry_24" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_25" (
+        prepend references = @./geometries.usd@</Geometries/geometry_25>
+    )
+    {
+        over "geometry_25" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_26" (
+        prepend references = @./geometries.usd@</Geometries/geometry_26>
+    )
+    {
+        over "geometry_26" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_27" (
+        prepend references = @./geometries.usd@</Geometries/geometry_27>
+    )
+    {
+        over "geometry_27" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_28" (
+        prepend references = @./geometries.usd@</Geometries/geometry_28>
+    )
+    {
+        over "geometry_28" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_29" (
+        prepend references = @./geometries.usd@</Geometries/geometry_29>
+    )
+    {
+        over "geometry_29" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_30" (
+        prepend references = @./geometries.usd@</Geometries/geometry_30>
+    )
+    {
+        over "geometry_30" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_31" (
+        prepend references = @./geometries.usd@</Geometries/geometry_31>
+    )
+    {
+        over "geometry_31" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_32" (
+        prepend references = @./geometries.usd@</Geometries/geometry_32>
+    )
+    {
+        over "geometry_32" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_33" (
+        prepend references = @./geometries.usd@</Geometries/geometry_33>
+    )
+    {
+        over "geometry_33" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_34" (
+        prepend references = @./geometries.usd@</Geometries/geometry_34>
+    )
+    {
+        over "geometry_34" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_35" (
+        prepend references = @./geometries.usd@</Geometries/geometry_35>
+    )
+    {
+        over "geometry_35" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_36" (
+        prepend references = @./geometries.usd@</Geometries/geometry_36>
+    )
+    {
+        over "geometry_36" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_37" (
+        prepend references = @./geometries.usd@</Geometries/geometry_37>
+    )
+    {
+        over "geometry_37" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_38" (
+        prepend references = @./geometries.usd@</Geometries/geometry_38>
+    )
+    {
+        over "geometry_38" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_39" (
+        prepend references = @./geometries.usd@</Geometries/geometry_39>
+    )
+    {
+        over "geometry_39" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+}
+

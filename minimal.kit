@@ -1,0 +1,41 @@
+[package]
+description = "Minimal Isaac Sim scene for URDF import"
+title     = "Isaac Sim Minimal"
+version   = "6.0.0"
+
+[dependencies]
+# Core simulation (without nodes which pulls replicator -> omni.pip.cloud)
+"isaacsim.core.api"                   = {}
+"isaacsim.core.deprecation_manager"   = { order = -100 }
+"isaacsim.core.simulation_manager"    = {}
+"isaacsim.core.utils"                 = {}
+"isaacsim.core.version"               = {}
+"isaacsim.simulation_app"             = {}
+"omni.kit.loop-isaac"                 = {}
+
+# Physics
+"omni.physx.commands"                 = {}
+"omni.physx.tensors"                  = {}
+
+# URDF importer
+"isaacsim.asset.importer.utils"       = {}
+"isaacsim.asset.importer.urdf"        = {}
+
+# Storage
+"isaacsim.storage.native"             = {}
+
+[settings.app]
+name    = "Isaac-Sim Minimal"
+version = "6.0.0"
+settings.persistent = false
+vulkan = true
+enableDeveloperWarnings = false
+
+[settings.app.exts.folders]
+'++' = [
+    "${app}",
+    "${app}/../exts",
+    "${app}/../extscache",
+    "${app}/../extsUser",
+    "${app}/../extsDeprecated",
+]

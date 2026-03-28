@@ -1,0 +1,9 @@
+[package]
+name = "omni.pip.cloud"
+version = "1.0.0"
+title = "Pip Cloud (stub)"
+description = "Stub extension satisfying omni.pip.cloud dependency without network access"
+keywords = ["pip", "cloud"]
+
+[[python.module]]
+name = "omni.pip.cloud"

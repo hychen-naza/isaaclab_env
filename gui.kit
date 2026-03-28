@@ -1,0 +1,126 @@
+[package]
+description = "Minimal Isaac Sim GUI — minimal.kit + viewport/window, no sensors"
+title = "Isaac Sim Minimal GUI"
+version = "6.0.0"
+
+
+[dependencies]
+# ── Core (same as minimal.kit) ────────────────────────────────────────────────
+"isaacsim.core.api"                   = {}
+"isaacsim.core.deprecation_manager"   = { order = -100 }
+"isaacsim.core.simulation_manager"    = {}
+"isaacsim.core.utils"                 = {}
+"isaacsim.core.version"               = {}
+"isaacsim.simulation_app"             = {}
+"omni.kit.loop-isaac"                 = {}
+
+# Physics
+"omni.physx.commands"                 = {}
+"omni.physx.tensors"                  = {}
+
+# URDF importer
+"isaacsim.asset.importer.utils"       = {}
+"isaacsim.asset.importer.urdf"        = {}
+
+# Storage
+"isaacsim.storage.native"             = {}
+
+# ── Rendering + viewport ──────────────────────────────────────────────────────
+"omni.hydra.rtx"                      = {}   # RTX renderer delegate
+"omni.hydra.engine.stats"             = {}   # GPU stats overlay (optional but harmless)
+"omni.hydra.usdrt_delegate"           = {}   # USD-RT delegate
+
+# ── Window / UI ───────────────────────────────────────────────────────────────
+"omni.kit.mainwindow"                 = {}   # top-level OS window
+"omni.kit.viewport.window"            = {}   # 3-D viewport widget
+"omni.kit.viewport.legacy_gizmos"     = {}   # transform gizmos
+"omni.kit.viewport.scene_camera_model" = {}
+
+"omni.kit.manipulator.camera"         = {}
+"omni.kit.manipulator.prim"           = {}
+"omni.kit.manipulator.selection"      = {}
+
+"omni.kit.window.status_bar"          = {}
+"omni.kit.window.toolbar"             = {}
+"omni.kit.window.stage"               = {}
+
+# Viewport menu bars (camera, display, lighting, render, settings)
+"omni.kit.viewport.menubar.camera"    = {}
+"omni.kit.viewport.menubar.display"   = {}
+"omni.kit.viewport.menubar.lighting"  = {}
+"omni.kit.viewport.menubar.render"    = {}
+"omni.kit.viewport.menubar.settings"  = {}
+
+# ── Physics visuals (no sensor deps) ─────────────────────────────────────────
+"omni.physics.physx"                  = {}
+"omni.physics.stageupdate"            = {}
+
+# ── Graph (needed by viewport internals) ─────────────────────────────────────
+"omni.graph.core"                     = {}
+"omni.graph.nodes"                    = {}
+"omni.graph.action"                   = {}
+
+# ── Isaac Lab extensions ──────────────────────────────────────────────────────
+"isaaclab"        = { order = 1000 }
+"isaaclab_physx"  = { order = 1000 }
+"isaaclab_newton" = { order = 1000 }
+"isaaclab_assets" = { order = 1000 }
+"isaaclab_tasks"  = { order = 1000 }
+"isaaclab_rl"     = { order = 1000 }
+
+
+[settings.app]
+name    = "Isaac-Sim Minimal GUI"
+version = "6.0.0"
+settings.persistent = false
+vulkan = true
+enableDeveloperWarnings = false
+fastShutdown = true
+useFabricSceneDelegate = true
+asyncRendering = false
+
+[settings.app.window]
+title  = "Isaac Sim"
+width  = 1440
+height = 900
+
+[settings.app.renderer]
+resolution.width  = 1280
+resolution.height = 720
+skipWhileMinimized = false
+sleepMsOnFocus     = 0
+sleepMsOutOfFocus  = 0
+
+[settings.app.viewport]
+defaultCamPos.x = 5
+defaultCamPos.y = 5
+defaultCamPos.z = 5
+grid.enabled    = true
+outline.enabled = true
+show.camera     = false
+show.lights     = false
+
+[settings.app.exts.folders]
+'++' = [
+    "${app}",
+    "${app}/../exts",
+    "${app}/../extscache",
+    "${app}/../extsUser",
+    "${app}/../extsDeprecated",
+    "${exe-path}/exts",
+    "${exe-path}/extscore",
+    "${exe-path}/../exts",
+    "${exe-path}/../extsDeprecated",
+    "${exe-path}/../extscache",
+    "${exe-path}/../extsPhysics",
+    "${exe-path}/../isaacsim/exts",
+    "${exe-path}/../isaacsim/extsDeprecated",
+    "${exe-path}/../isaacsim/extscache",
+    "${exe-path}/../isaacsim/extsPhysics",
+    "/media/hdd1/IsaacLab/source",
+    "/home/hongyi/scalevideomanip/isaacsim_scene/local_exts",
+]
+
+[settings]
+renderer.asyncInit = true
+renderer.gpuEnumeration.glInterop.enabled = false

@@ -1,0 +1,124 @@
+##
+# Headless Isaac Lab with camera support.
+# Based on isaaclab.python.headless.rendering.kit but with local stub for omni.pip.cloud.
+##
+
+[package]
+title = "Isaac Lab Python Headless Camera (local)"
+version = "3.0.0"
+
+# ── Core physics + Isaac Lab (same as isaaclab.python.headless) ───────────────
+[dependencies]
+"omni.physx" = {}
+"omni.physx.tensors" = {}
+"omni.physx.fabric" = {}
+"omni.warp.core" = {}
+"usdrt.scenegraph" = {}
+"omni.kit.telemetry" = {}
+"omni.kit.loop" = {}
+"omni.kit.usd.mdl" = {}
+"omni.usd.metrics.assembler.ui" = {}
+"isaacsim.simulation_app" = {}
+"isaacsim.core.api" = {}
+"isaacsim.core.cloner" = {}
+"isaacsim.core.utils" = {}
+"isaacsim.core.version" = {}
+"isaaclab" = {order = 1000}
+"isaaclab_physx" = {order = 1000}
+"isaaclab_newton" = {order = 1000}
+"isaaclab_assets" = {order = 1000}
+"isaaclab_tasks" = {order = 1000}
+"isaaclab_rl" = {order = 1000}
+# ── Camera/rendering additions ────────────────────────────────────────────────
+"omni.replicator.core" = {}
+"omni.kit.material.library" = {}
+"omni.kit.viewport.rtx" = {}
+
+[settings.isaaclab]
+cameras_enabled = true
+
+[settings]
+app.versionFile = "${exe-path}/VERSION"
+app.folder = "${exe-path}/"
+app.name = "IsaacLab"
+app.version = "3.0.0"
+log.level = "Warn"
+log.outputStreamLevel = "Warn"
+app.content.emptyStageOnStart = false
+app.enableStdoutOutput = false
+app.useFabricSceneDelegate = true
+rtx.hydra.readTransformsFromFabricInRenderDelegate = true
+omni.replicator.asyncRendering = false
+app.updateOrder.checkForHydraRenderComplete = 1000
+app.renderer.waitIdle = true
+app.hydraEngine.waitIdle = true
+app.execution.debug.forceSerial = true
+exts."omni.replicator.core".Orchestrator.enabled = false
+rtx.translucency.enabled = false
+rtx.reflections.enabled = false
+rtx.indirectDiffuse.enabled = false
+rtx.directLighting.sampledLighting.enabled = true
+rtx.directLighting.sampledLighting.samplesPerPixel = 1
+rtx.sceneDb.ambientLightIntensity = 1.0
+rtx.pathtracing.maxSamplesPerLaunch = 1000000
+rtx.raytracing.cached.enabled = false
+rtx.ambientOcclusion.enabled = false
+exts."omni.renderer.core".present.enabled = false
+renderer.multiGpu.maxGpuCount = 1
+rtx.viewTile.limit = 1000000
+renderer.enabled = "rtx"
+app.audio.enabled = false
+app.vulkan = true
+app.asyncRendering = false
+app.asyncRenderingLowLatency = false
+app.runLoops.main.rateLimitEnabled = false
+app.extensions.excluded = ["omni.kit.pip_archive"]
+isaac.startup.ros_bridge_extension = ""
+simulation.defaultMetersPerUnit = 1.0
+omnigraph.updateToUsd = false
+
+[settings.app.settings]
+persistent = true
+dev_build = false
+fabricDefaultStageFrameHistoryCount = 3
+
+[settings.app.renderer]
+skipWhileMinimized = false
+sleepMsOnFocus = 0
+sleepMsOutOfFocus = 0
+
+[settings.app.python]
+interceptSysStdOutput = false
+logSysStdOutput = false
+
+[settings.app.extensions]
+skipPublishVerification = false
+registryEnabled = true
+
+[settings.app.exts]
+folders = [
+    "${exe-path}/exts",
+    "${exe-path}/extscore",
+    "${exe-path}/../exts",
+    "${exe-path}/../extsDeprecated",
+    "${exe-path}/../extscache",
+    "${exe-path}/../extsPhysics",
+    "${exe-path}/../isaacsim/exts",
+    "${exe-path}/../isaacsim/extsDeprecated",
+    "${exe-path}/../isaacsim/extscache",
+    "${exe-path}/../isaacsim/extsPhysics",
+    "${app}",
+    "/media/hdd1/IsaacLab/source",
+    "/home/hongyi/scalevideomanip/isaacsim_scene/local_exts",
+]
+
+[settings.persistent]
+app.stage.upAxis = "Z"
+simulation.defaultMetersPerUnit = 1.0
+
+[settings.physics]
+updateToUsd = false
+fabricUpdateTransformations = false
+fabricUpdateVelocities = false
+fabricUpdateJointStates = false
+fabricUseGPUInterop = true

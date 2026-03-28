@@ -86,7 +86,7 @@ def main() -> None:
 
     # ── Step 2: reorient meshes to Z-up ─────────────────────────────────────
     print("\n[2/6] Reorienting meshes to Z-up (-Y→Z, -90° around X) ...")
-    sys.path.insert(0, str(SCRIPT_DIR))
+    sys.path.insert(0, str(SCRIPT_DIR / "obj_utils"))
     from preprocess_meshes import reorient_to_z_up   # noqa: E402
     for obj in [
         ASSETS / "grasp"  / "frame_000000_object_mesh_grasp.obj",
@@ -97,7 +97,7 @@ def main() -> None:
 
     # ── Step 3: CoACD decomposition + URDF ──────────────────────────────────
     print("\n[3/6] Running preprocess_meshes.py (center + CoACD + URDF) ...")
-    subprocess.run([sys.executable, str(SCRIPT_DIR / "preprocess_meshes.py")],
+    subprocess.run([sys.executable, str(SCRIPT_DIR / "obj_utils" / "preprocess_meshes.py")],
                    cwd=str(SCRIPT_DIR), check=True)
 
     # ── Step 4: compute z heights + update env_cfg.py ───────────────────────
@@ -137,7 +137,7 @@ def main() -> None:
 
     # ── Step 6: URDF → USD conversion ───────────────────────────────────────
     print("\n[6/6] Running setup_assets.py (URDF → USD conversion) ...")
-    subprocess.run([sys.executable, str(SCRIPT_DIR / "setup_assets.py")],
+    subprocess.run([sys.executable, str(SCRIPT_DIR / "obj_utils" / "setup_assets.py")],
                    cwd=str(SCRIPT_DIR), check=True)
 
     print("\n" + "=" * 60)

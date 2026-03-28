@@ -46,15 +46,15 @@ FINGER_JOINT_LIMITS = {
 def ensure_hand_usd(fix_base: bool = False) -> str:
     """Return the USD path for the Inspire hand, asserting it was pre-converted.
 
-    Run ``setup_assets.py`` once before training or visualisation to create
-    the USD files.  The URDF importer is NOT available in the default headless
-    kit experience used by training, so conversion must happen separately.
+    Run ``obj_utils/setup_assets.py`` once before training or visualisation to
+    create the USD files.  The URDF importer is NOT available in the default
+    headless kit experience used by training, so conversion must happen separately.
     """
     usd_path = HAND_USD_VIZ if fix_base else HAND_USD_RL
     if not Path(usd_path).exists():
         raise FileNotFoundError(
             f"Hand USD not found: {usd_path}\n"
-            "Run 'python setup_assets.py' first to pre-convert all URDF assets."
+            "Run 'python obj_utils/setup_assets.py' first to pre-convert all URDF assets."
         )
     return usd_path
 

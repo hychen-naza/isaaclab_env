@@ -53,7 +53,7 @@ def _ensure_obj_usd(urdf_path: str) -> str:
     if not Path(usd_path).exists():
         raise FileNotFoundError(
             f"Object USD not found: {usd_path}\n"
-            "Run 'python setup_assets.py' first."
+            "Run 'python obj_utils/setup_assets.py' first."
         )
     return usd_path
 

@@ -11,7 +11,7 @@ with physics-accurate object placement, depth camera observations, and PPO train
 isaacsim_scene/
 ├── scripts/
 │   └── prepare_objects.py      # asset preparation pipeline (mesh → USD)
-├── preprocess_meshes.py        # center mesh + CoACD decomposition + URDF
+
 ├── obj_utils/
 │   ├── prepare_objects.sh      # legacy bash asset pipeline
 │   └── obj2urdf.py             # CoACD → URDF helper

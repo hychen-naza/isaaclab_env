@@ -214,7 +214,7 @@ class GraspAndPlaceEnv(DirectRLEnv):
             self.scene.sensors["camera"]   = self.camera
 
         # Clone environments and filter collisions (required by DirectRLEnv)
-        self.scene.clone_environments(copy_from_source=False)
+        self.scene.clone_environments(copy_from_source=True)
         self.scene.filter_collisions(global_prim_paths=[])
 
 

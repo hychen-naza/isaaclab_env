@@ -5,3 +5,4 @@ logs/
 old/
 *.kit~
 .DS_Store
+unsloth_compiled_cache/

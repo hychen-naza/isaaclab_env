@@ -66,6 +66,29 @@ class GraspAndPlaceEnvCfg(DirectRLEnvCfg):
     workspace_min: tuple = (-0.7, -0.6, 0.4)
     workspace_max: tuple = (0.7, 0.6, 1.3)
 
+    # ── Robometer reward ─────────────────────────────────────────────────────
+    # Set use_robometer=True to replace the sparse reward with a dense progress
+    # signal from the Robometer VLM reward model.  Requires a GPU with enough
+    # VRAM (~10 GB for the 4B model).  The model is loaded once at env init.
+    use_robometer:              bool  = False
+    robometer_model_path:       str   = "robometer/Robometer-4B"
+    robometer_task:             str   = "grasp the bottle and place it in the bowl"
+    # How often (in env steps) to run robometer inference and refresh rewards.
+    # Lower = denser rewards but much slower training (4B model is expensive).
+    robometer_reward_freq:      int   = 20
+    # Number of recent frames kept per env for the sliding-window trajectory.
+    robometer_frame_buffer_size:int   = 8
+    # Scale applied to the delta-progress reward from robometer.
+    robometer_reward_scale:     float = 10.0
+    # How many envs to evaluate per robometer call (random subset each time).
+    # Set to -1 to evaluate all envs (very slow with many envs).
+    robometer_eval_envs:        int   = 16
+    # Device for the Robometer model (separate from Isaac Lab sim device).
+    # Use "cuda:1" to keep the sim on cuda:0 and avoid OOM.
+    robometer_device:           str   = "cuda:1"
+    # Resize frames to this resolution before VLM inference (saves VRAM).
+    robometer_frame_size:       tuple = (448, 448)
+
     # ── Depth camera ──────────────────────────────────────────────────────────
     # Camera at (0, -1.0, 0.9), closer to table, facing along +Y with downward
     # tilt toward (0, 0, 0.5).  Quaternion recomputed for new position then

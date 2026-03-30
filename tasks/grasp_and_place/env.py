@@ -6,6 +6,7 @@ Obs:   hand root pose + joint positions + bottle pose + bowl position
 Act:   [dx, dy, dz, finger_0, …, finger_5]  (all normalised to [-1, 1]).
 Reward: sparse — 0 every step; +100 when bottle centre is within success_dist
         of bowl centre.
+        Optionally dense — Robometer progress signal (set use_robometer=True).
 """
 from __future__ import annotations
 
@@ -94,6 +95,17 @@ class GraspAndPlaceEnv(DirectRLEnv):
         self._finger_joint_mins:   torch.Tensor = torch.zeros(6)
         self._finger_joint_ranges: torch.Tensor = torch.ones(6)
 
+        # Robometer placeholders (populated after super().__init__ if use_robometer=True)
+        self._robometer_model      = None
+        self._rbm_tokenizer        = None
+        self._rbm_processor        = None
+        self._rbm_exp_config       = None
+        self._rbm_collator         = None
+        self._rbm_frame_buf        = None   # (N_envs, buf_size, H, W, 3) uint8, CPU
+        self._rbm_last_progress    = None   # (N_envs,) float32 — progress at last call
+        self._rbm_cached_reward    = None   # (N_envs,) float32 — last robometer reward
+        self._rbm_step_counter     = 0
+
         super().__init__(cfg, render_mode, **kwargs)
 
         # Move tensors to the device resolved by super().__init__()
@@ -108,6 +120,10 @@ class GraspAndPlaceEnv(DirectRLEnv):
         # Desired hand position — updated in _apply_action to avoid reading stale sensor data
         # within decimation sub-steps (root_pos_w is only refreshed after scene.update()).
         self._hand_pos_desired = self._hand_init_pos.unsqueeze(0).expand(self.num_envs, -1).clone()
+
+        # Load Robometer reward model if requested
+        if cfg.use_robometer:
+            self._load_robometer()
 
         # Resolve finger joint indices (articulation is now fully initialised)
         self._finger_joint_ids, _ = self.robot.find_joints(FINGER_JOINTS)
@@ -201,6 +217,138 @@ class GraspAndPlaceEnv(DirectRLEnv):
         self.scene.clone_environments(copy_from_source=False)
         self.scene.filter_collisions(global_prim_paths=[])
 
+
+    # ── Robometer reward model ────────────────────────────────────────────────
+
+    def _load_robometer(self) -> None:
+        """Load the Robometer VLM reward model (called once at init)."""
+        import unsloth  # must be imported before transformers for patching
+        from robometer.utils.save import load_model_from_hf
+        from robometer.utils.setup_utils import setup_batch_collator
+
+        print(f"[GraspAndPlaceEnv] Loading Robometer from '{self.cfg.robometer_model_path}' …")
+        rbm_device = torch.device(self.cfg.robometer_device)
+        exp_config, tokenizer, processor, reward_model = load_model_from_hf(
+            model_path=self.cfg.robometer_model_path,
+            device=rbm_device,
+        )
+        reward_model.eval()
+        self._robometer_device = rbm_device
+        self._robometer_model  = reward_model
+        self._rbm_tokenizer    = tokenizer
+        self._rbm_processor    = processor
+        self._rbm_exp_config   = exp_config
+        self._rbm_collator     = setup_batch_collator(processor, tokenizer, exp_config, is_eval=True)
+
+        # Camera is required; auto-enable if not set
+        if not self.cfg.use_camera:
+            print("[GraspAndPlaceEnv] WARNING: use_robometer=True but use_camera=False. "
+                  "Robometer needs RGB frames — enable use_camera or rewards will be zero.")
+
+        N   = self.num_envs
+        buf = self.cfg.robometer_frame_buffer_size
+        H, W = self.cfg.robometer_frame_size   # downscaled resolution for VLM
+        # Allocate on CPU (frames are uint8, avoid VRAM pressure)
+        self._rbm_frame_buf     = np.zeros((N, buf, H, W, 3), dtype=np.uint8)
+        self._rbm_last_progress = np.zeros(N, dtype=np.float32)
+        self._rbm_cached_reward = torch.zeros(N, device=self.device)
+        print(f"[GraspAndPlaceEnv] Robometer ready. "
+              f"reward_freq={self.cfg.robometer_reward_freq}, "
+              f"buffer={buf} frames, eval_envs={self.cfg.robometer_eval_envs}")
+
+    def _robometer_step(self) -> torch.Tensor:
+        """
+        Run Robometer on a random subset of envs and return per-env dense rewards.
+
+        Returns
+        -------
+        torch.Tensor
+            Shape (num_envs,).  Envs not evaluated this call get reward=0.
+        """
+        import time
+        from robometer.data.dataset_types import ProgressSample, Trajectory
+        from robometer.evals.eval_server import compute_batch_outputs
+
+        t_start = time.perf_counter()
+        rewards = torch.zeros(self.num_envs, device=self.device)
+        n_eval  = self.cfg.robometer_eval_envs
+        if n_eval < 0 or n_eval >= self.num_envs:
+            eval_ids = list(range(self.num_envs))
+        else:
+            eval_ids = np.random.choice(self.num_envs, size=n_eval, replace=False).tolist()
+
+        loss_cfg     = getattr(self._rbm_exp_config, "loss", None)
+        is_discrete  = (
+            getattr(loss_cfg, "progress_loss_type", "l2").lower() == "discrete"
+            if loss_cfg else False
+        )
+        num_bins = (
+            getattr(loss_cfg, "progress_discrete_bins", None)
+            or getattr(self._rbm_exp_config.model, "progress_discrete_bins", 10)
+        )
+
+        for env_id in eval_ids:
+            frames = self._rbm_frame_buf[env_id]          # (buf, H, W, 3) uint8
+            T      = frames.shape[0]
+            traj   = Trajectory(
+                frames=frames,
+                frames_shape=tuple(frames.shape),
+                task=self.cfg.robometer_task,
+                id=str(env_id),
+                metadata={"subsequence_length": T},
+                video_embeddings=None,
+            )
+            sample = ProgressSample(trajectory=traj, sample_type="progress")
+            batch  = self._rbm_collator([sample])
+            prog_inputs = batch["progress_inputs"]
+            prog_inputs = {k: v.to(self._robometer_device) if hasattr(v, "to") else v
+                           for k, v in prog_inputs.items()}
+
+            with torch.no_grad():
+                results = compute_batch_outputs(
+                    self._robometer_model,
+                    self._rbm_tokenizer,
+                    prog_inputs,
+                    sample_type="progress",
+                    is_discrete_mode=is_discrete,
+                    num_bins=num_bins,
+                )
+
+            prog_pred = results.get("progress_pred", [])
+            if prog_pred and len(prog_pred) > 0 and len(prog_pred[0]) > 0:
+                # Use the last-frame progress score
+                latest_progress = float(np.array(prog_pred[0])[-1])
+            else:
+                latest_progress = self._rbm_last_progress[env_id]
+
+            delta = latest_progress - self._rbm_last_progress[env_id]
+            rewards[env_id] = float(self.cfg.robometer_reward_scale * max(float(delta), 0.0))
+            self._rbm_last_progress[env_id] = latest_progress
+
+        elapsed = time.perf_counter() - t_start
+        n_eval  = len(eval_ids)
+        print(f"[Robometer] step={self._rbm_step_counter}  "
+              f"envs={n_eval}  time={elapsed:.2f}s  "
+              f"({elapsed/max(n_eval,1)*1000:.0f} ms/env)  "
+              f"reward_sum={rewards.sum().item():.3f}")
+        return rewards
+
+    def _rbm_push_frame(self, rgb_frames: torch.Tensor) -> None:
+        """
+        Shift the per-env frame buffer left and append a new (downscaled) frame.
+
+        Args:
+            rgb_frames: (N, H, W, 4) or (N, H, W, 3) uint8 tensor from TiledCamera.
+        """
+        import cv2
+        frames_np = rgb_frames[..., :3].cpu().numpy().astype(np.uint8)  # (N, H, W, 3)
+        tH, tW   = self.cfg.robometer_frame_size
+        resized  = np.stack([
+            cv2.resize(frames_np[i], (tW, tH), interpolation=cv2.INTER_AREA)
+            for i in range(frames_np.shape[0])
+        ])                                                              # (N, tH, tW, 3)
+        self._rbm_frame_buf = np.roll(self._rbm_frame_buf, shift=-1, axis=1)
+        self._rbm_frame_buf[:, -1] = resized
 
     # ── Point cloud ───────────────────────────────────────────────────────────
 
@@ -310,9 +458,12 @@ class GraspAndPlaceEnv(DirectRLEnv):
         ], dim=-1)
 
         if self.cfg.use_camera and self.camera is not None:
+            rgb = self.camera.data.output["rgb"]               # (N, H, W, 3/4) uint8
+            if self.cfg.use_robometer and self._rbm_frame_buf is not None:
+                self._rbm_push_frame(rgb)
             cloud_obs = self._compute_pointcloud().reshape(self.num_envs, -1)
             return {"policy": torch.cat([state_obs, cloud_obs], dim=-1),
-                    "rgb":   self.camera.data.output["rgb"],    # (N, H, W, 3) uint8
+                    "rgb":   rgb,
                     "depth": self.camera.data.output["depth"]}  # (N, H, W, 1) float
         return {"policy": state_obs}
 
@@ -322,11 +473,21 @@ class GraspAndPlaceEnv(DirectRLEnv):
         dist = torch.norm(
             wp.to_torch(self.bottle.data.root_pos_w) - wp.to_torch(self.bowl.data.root_pos_w), dim=-1
         )
-        return torch.where(
+        sparse = torch.where(
             dist < self.cfg.success_dist,
             torch.full((self.num_envs,), self.cfg.sparse_reward, device=self.device),
             torch.zeros(self.num_envs, device=self.device),
         )
+
+        if not self.cfg.use_robometer or self._robometer_model is None:
+            return sparse
+
+        # Dense Robometer reward: run inference every `robometer_reward_freq` steps
+        self._rbm_step_counter += 1
+        if self._rbm_step_counter % self.cfg.robometer_reward_freq == 0:
+            self._rbm_cached_reward = self._robometer_step()
+
+        return sparse + self._rbm_cached_reward
 
     # ── Termination ───────────────────────────────────────────────────────────
 
@@ -343,6 +504,13 @@ class GraspAndPlaceEnv(DirectRLEnv):
     def _reset_idx(self, env_ids: Sequence[int]) -> None:
         super()._reset_idx(env_ids)
         n = len(env_ids)
+
+        # Clear Robometer frame buffers and progress for reset envs
+        if self.cfg.use_robometer and self._rbm_frame_buf is not None:
+            ids_cpu = env_ids.cpu().numpy() if hasattr(env_ids, 'cpu') else env_ids
+            self._rbm_frame_buf[ids_cpu]     = 0
+            self._rbm_last_progress[ids_cpu] = 0.0
+            self._rbm_cached_reward[env_ids] = 0.0   # torch tensor, CUDA index OK
 
         # Reset desired hand position tracker for these envs
         self._hand_pos_desired[env_ids] = self._hand_init_pos

@@ -27,12 +27,24 @@ parser.add_argument("--max_steps",   type=int,  default=50_000_000,
 parser.add_argument("--log_dir",     type=str,  default="./logs")
 parser.add_argument("--checkpoint",  type=str,  default=None,
                     help="Path to a saved checkpoint to resume from")
-parser.add_argument("--use_camera",  action="store_true",
+parser.add_argument("--use_camera",    action="store_true",
                     help="Enable TiledCamera observations (requires camera_headless.kit)")
+parser.add_argument("--use_robometer", action="store_true",
+                    help="Enable Robometer dense reward (implies --use_camera; requires ~10GB VRAM)")
+parser.add_argument("--robometer_model_path", type=str, default="robometer/Robometer-4B")
+parser.add_argument("--robometer_task", type=str,
+                    default="grasp the bottle and place it in the bowl")
+parser.add_argument("--robometer_reward_freq", type=int, default=20,
+                    help="Run Robometer every N env steps (lower=denser but slower)")
+parser.add_argument("--robometer_eval_envs", type=int, default=16,
+                    help="Number of envs evaluated per Robometer call (-1 for all)")
+parser.add_argument("--robometer_reward_scale", type=float, default=10.0)
+parser.add_argument("--robometer_device", type=str, default="cuda:1",
+                    help="GPU for Robometer model (keep separate from sim GPU to avoid OOM)")
 AppLauncher.add_app_launcher_args(parser)
 args = parser.parse_args()
 args.headless = True   # training always runs headless
-if args.use_camera:
+if args.use_camera or args.use_robometer:
     args.experience = _CAMERA_KIT
     args.enable_cameras = True
 
@@ -101,10 +113,18 @@ class Value(DeterministicMixin, Model):
 
 env_cfg = GraspAndPlaceEnvCfg()
 env_cfg.scene.num_envs = args.num_envs
-if args.use_camera:
+if args.use_camera or args.use_robometer:
     from tasks.grasp_and_place.env_cfg import OBS_STATE_DIM, OBS_CLOUD_DIM
     env_cfg.use_camera = True
     env_cfg.observation_space = OBS_STATE_DIM + OBS_CLOUD_DIM
+if args.use_robometer:
+    env_cfg.use_robometer          = True
+    env_cfg.robometer_model_path   = args.robometer_model_path
+    env_cfg.robometer_task         = args.robometer_task
+    env_cfg.robometer_reward_freq  = args.robometer_reward_freq
+    env_cfg.robometer_eval_envs    = args.robometer_eval_envs
+    env_cfg.robometer_reward_scale = args.robometer_reward_scale
+    env_cfg.robometer_device       = args.robometer_device
 env = GraspAndPlaceEnv(cfg=env_cfg)
 env = wrap_env(env)          # skrl Isaac Lab wrapper
 

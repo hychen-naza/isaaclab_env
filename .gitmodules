@@ -1,0 +1,6 @@
+[submodule "policy/il_dmp"]
+	path = policy/il_dmp
+	url = https://github.com/Tony050519/impact.git
+[submodule "policy/robometer"]
+	path = policy/robometer
+	url = https://github.com/robometer/robometer.git

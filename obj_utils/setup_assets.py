@@ -29,10 +29,7 @@ simulation_app = launcher.app
 # ── Post-launch imports ───────────────────────────────────────────────────────
 from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg
 
-INSPIRE_DIR = Path(
-    "/home/hongyi/scalevideomanip/dex-retargeting"
-    "/example/position_retargeting/inspire"
-)
+INSPIRE_DIR = BASE.parent / "robots" / "inspire"
 ASSETS_DIR = BASE / "tasks" / "grasp_and_place" / "assets"
 
 

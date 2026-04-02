@@ -1,0 +1,453 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "inspire_hand_right"
+    doc = """Generated from Composed Stage of root layer /tmp/tmp5drw893n/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right_rl/usdex/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right_rl/temp/inspire_hand_right.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right_rl/inspire_hand_right/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./robot.usda@
+    ]
+    upAxis = "Z"
+)
+
+def Xform "inspire_hand_right" (
+    prepend apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "inspire_hand_right"
+    }
+    kind = "component"
+)
+{
+    float3[] extentsHint = [(-0.21785125, -0.05130816, -0.044129495), (0.00016197373, 0.033364486, 0.1167681), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.21782443, -0.051393297, -0.04501992), (0.00030028005, 0.028002694, 0.11668575)]
+
+    def Scope "Materials"
+    {
+    }
+
+    def Scope "Geometry"
+    {
+        def Xform "base"
+        {
+            def Xform "right_base_link" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/obj3>
+            )
+            {
+                quatd xformOp:orient = (0.00003275807467, -0.7071080917, -0.7071054691, -0.00003275790785)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "thumb_proximal_base"
+            {
+                quatf xformOp:orient = (-0.00003405652, 0.70710677, 0.000028862403, -0.70710677)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.0691000623, -0.01696164087, 0.02044842851)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_thumb_proximal_base" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_thumb_proximal_base>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "thumb_proximal"
+                {
+                    quatf xformOp:orient = (0.0996843, 0.09968466, 0.7000463, 0.70004374)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.0088099, 0.010892, -0.00925)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_thumb_proximal" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_proximal>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "thumb_intermediate"
+                    {
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.04407, 0.034553, -0.0008)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                        def Xform "right_thumb_intermediate" (
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/obj2_1>
+                        )
+                        {
+                        }
+
+                        def Xform "thumb_distal"
+                        {
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (0.020248, 0.010156, -0.0012)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                            def Xform "right_thumb_distal" (
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/obj3_1>
+                            )
+                            {
+                            }
+
+                            def Xform "right_thumb_distal_1" (
+                                displayName = "right_thumb_distal"
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/geometry_1>
+                            )
+                            {
+                                uniform token purpose = "guide"
+                            }
+                        }
+
+                        def Xform "right_thumb_intermediate_1" (
+                            displayName = "right_thumb_intermediate"
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/right_thumb_intermediate_1>
+                        )
+                        {
+                            quatd xformOp:orient = (1, 0, 0, 0)
+                            double3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (0, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+                    }
+
+                    def Xform "right_thumb_proximal_1" (
+                        displayName = "right_thumb_proximal"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_proximal_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_thumb_proximal_base_1" (
+                    displayName = "right_thumb_proximal_base"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/geometry_1_1>
+                )
+                {
+                    uniform token purpose = "guide"
+                }
+            }
+
+            def Xform "index_proximal"
+            {
+                quatf xformOp:orient = (0.7069999, 0.012368565, 0.012303014, 0.70699847)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.136529999, 0.0002828417554, 0.0322680263)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_index_proximal" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/obj2_3>
+                )
+                {
+                }
+
+                def Xform "index_intermediate"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.0026138, 0.032026, -0.001)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_index_intermediate" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/obj3_2>
+                    )
+                    {
+                    }
+
+                    def Xform "right_index_intermediate_1" (
+                        displayName = "right_index_intermediate"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/geometry_2>
+                    )
+                    {
+                        uniform token purpose = "guide"
+                    }
+                }
+
+                def Xform "right_index_proximal_1" (
+                    displayName = "right_index_proximal"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/geometry_1_3>
+                )
+                {
+                    uniform token purpose = "guide"
+                }
+            }
+
+            def Xform "middle_proximal"
+            {
+                quatf xformOp:orient = (0.7071081, 0.000030160578, -0.000035355395, 0.70710546)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.137099999, 0.0002846337312, 0.01295002638)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_index_proximal" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/obj2_3>
+                )
+                {
+                }
+
+                def Xform "middle_intermediate" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_middle_intermediate_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.0024229, 0.032041, -0.001)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_index_proximal_1" (
+                    displayName = "right_index_proximal"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/geometry_1_3>
+                )
+                {
+                    uniform token purpose = "guide"
+                }
+            }
+
+            def Xform "ring_proximal"
+            {
+                quatf xformOp:orient = (0.7068663, -0.018488768, -0.018554194, 0.70686203)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.1369099989, 0.0002864154289, -0.006287173536)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_index_proximal" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/obj2_3>
+                )
+                {
+                }
+
+                def Xform "ring_intermediate"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.0024229, 0.032041, -0.001)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_index_intermediate" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/obj3_2>
+                    )
+                    {
+                    }
+
+                    def Xform "right_index_intermediate_1" (
+                        displayName = "right_index_intermediate"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/geometry_2>
+                    )
+                    {
+                        uniform token purpose = "guide"
+                    }
+                }
+
+                def Xform "right_index_proximal_1" (
+                    displayName = "right_index_proximal"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/geometry_1_3>
+                )
+                {
+                    uniform token purpose = "guide"
+                }
+            }
+
+            def Xform "pinky_proximal"
+            {
+                quatf xformOp:orient = (0.70614123, -0.036964897, -0.037030187, 0.7061352)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.1357099989, 0.0002881900441, -0.02548797345)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_index_proximal" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/obj2_3>
+                )
+                {
+                }
+
+                def Xform "pinky_intermediate" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_pinky_intermediate_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (-0.0024229, 0.032041, -0.001)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_index_proximal_1" (
+                    displayName = "right_index_proximal"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/geometry_1_3>
+                )
+                {
+                    uniform token purpose = "guide"
+                }
+            }
+
+            def Cylinder "cylinder" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.028, -0.028, -0.0139), (0.028, 0.028, 0.0139)]
+                double height = 0.0278
+                uniform token purpose = "guide"
+                double radius = 0.028
+                quatf xformOp:orient = (-0.5000225, 0.49997935, 0.50002384, -0.49997434)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.0136, 4.995558941e-8, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0391, 0.0202, 0.0574)
+                double3 xformOp:translate = (-0.03800001175, -0.003199860404, -2.964914869e-7)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_1" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0391, 0.04, 0.0814)
+                double3 xformOp:translate = (-0.06820001175, -0.003199749474, -2.964914869e-7)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_2" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0322, 0.04, 0.0814)
+                double3 xformOp:translate = (-0.1081, 3.970734717e-7, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_3" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0125, 0.0111, 0.0089)
+                double3 xformOp:translate = (-0.1340000059, -0.001596644788, -0.03090014811)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_4" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0125, 0.0111, 0.0089)
+                double3 xformOp:translate = (-0.1340000059, -0.001598414471, -0.0118001482)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_5" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0125, 0.0111, 0.0089)
+                double3 xformOp:translate = (-0.1340000059, -0.001600156359, 0.006999851724)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "box_6" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "box"
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                uniform token purpose = "guide"
+                double size = 1
+                quatf xformOp:orient = (-0.000032758075, 0.7071081, 0.70710546, 0.000032757907)
+                float3 xformOp:scale = (0.0125, 0.0111, 0.0089)
+                double3 xformOp:translate = (-0.1340000059, -0.001601935308, 0.02619985164)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+    }
+
+    def Scope "Physics"
+    {
+    }
+
+    def Scope "VisualMaterials"
+    {
+    }
+}
+

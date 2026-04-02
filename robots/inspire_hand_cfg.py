@@ -11,10 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-INSPIRE_DIR = Path(
-    "/home/hongyi/scalevideomanip/dex-retargeting"
-    "/example/position_retargeting/inspire"
-)
+INSPIRE_DIR = Path(__file__).parent / "inspire"
 HAND_URDF = str(INSPIRE_DIR / "inspire_hand_right.urdf")
 
 # Cached USD output paths

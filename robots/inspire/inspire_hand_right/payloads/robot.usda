@@ -1,0 +1,221 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "inspire_hand_right"
+    doc = """Generated from Composed Stage of root layer /tmp/tmp7i8u6d0b/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/usdex/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/temp/inspire_hand_right.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "inspire_hand_right" (
+    prepend apiSchemas = ["IsaacRobotAPI", "IsaacLinkAPI"]
+)
+{
+    custom rel isaac:physics:robotJoints
+    prepend rel isaac:physics:robotJoints = [
+        </inspire_hand_right/Physics/thumb_proximal_yaw_joint>,
+        </inspire_hand_right/Physics/index_proximal_joint>,
+        </inspire_hand_right/Physics/middle_proximal_joint>,
+        </inspire_hand_right/Physics/ring_proximal_joint>,
+        </inspire_hand_right/Physics/pinky_proximal_joint>,
+        </inspire_hand_right/Physics/root_joint>,
+        </inspire_hand_right/fix_base_joint>,
+        </inspire_hand_right/Physics/thumb_proximal_pitch_joint>,
+        </inspire_hand_right/Physics/index_intermediate_joint>,
+        </inspire_hand_right/Physics/middle_intermediate_joint>,
+        </inspire_hand_right/Physics/ring_intermediate_joint>,
+        </inspire_hand_right/Physics/pinky_intermediate_joint>,
+        </inspire_hand_right/Physics/thumb_intermediate_joint>,
+        </inspire_hand_right/Physics/thumb_distal_joint>,
+    ]
+    custom rel isaac:physics:robotLinks
+    prepend rel isaac:physics:robotLinks = [
+        </inspire_hand_right/Geometry/base>,
+        </inspire_hand_right/Geometry/base/thumb_proximal_base>,
+        </inspire_hand_right/Geometry/base/index_proximal>,
+        </inspire_hand_right/Geometry/base/middle_proximal>,
+        </inspire_hand_right/Geometry/base/ring_proximal>,
+        </inspire_hand_right/Geometry/base/pinky_proximal>,
+        </inspire_hand_right/Geometry/base/thumb_proximal_base/thumb_proximal>,
+        </inspire_hand_right/Geometry/base/index_proximal/index_intermediate>,
+        </inspire_hand_right/Geometry/base/middle_proximal/middle_intermediate>,
+        </inspire_hand_right/Geometry/base/ring_proximal/ring_intermediate>,
+        </inspire_hand_right/Geometry/base/pinky_proximal/pinky_intermediate>,
+        </inspire_hand_right/Geometry/base/thumb_proximal_base/thumb_proximal/thumb_intermediate>,
+        </inspire_hand_right/Geometry/base/thumb_proximal_base/thumb_proximal/thumb_intermediate/thumb_distal>,
+    ]
+
+    over "Physics"
+    {
+        over "thumb_proximal_yaw_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "index_proximal_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "middle_proximal_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "ring_proximal_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "pinky_proximal_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_proximal_pitch_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "index_intermediate_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "middle_intermediate_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "ring_intermediate_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "pinky_intermediate_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_intermediate_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_distal_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base" (
+            prepend apiSchemas = ["IsaacLinkAPI"]
+        )
+        {
+            over "thumb_proximal_base" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "thumb_proximal" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                    over "thumb_intermediate" (
+                        prepend apiSchemas = ["IsaacLinkAPI"]
+                    )
+                    {
+                        over "thumb_distal" (
+                            prepend apiSchemas = ["IsaacLinkAPI"]
+                        )
+                        {
+                        }
+                    }
+                }
+            }
+
+            over "index_proximal" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "index_intermediate" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "middle_proximal" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "middle_intermediate" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "ring_proximal" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "ring_intermediate" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "pinky_proximal" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "pinky_intermediate" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+        }
+    }
+
+    over "fix_base_joint" (
+        prepend apiSchemas = ["IsaacJointAPI"]
+    )
+    {
+    }
+}
+

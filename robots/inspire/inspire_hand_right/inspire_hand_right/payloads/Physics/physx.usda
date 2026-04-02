@@ -1,0 +1,290 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "inspire_hand_right"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpumakolso/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right/usdex/inspire_hand_right.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right/temp/inspire_hand_right.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/dex-retargeting/example/position_retargeting/inspire/inspire_hand_right/inspire_hand_right/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./physics.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "inspire_hand_right"
+{
+    over "Geometry"
+    {
+        over "base" (
+            delete apiSchemas = ["NewtonArticulationRootAPI"]
+            prepend apiSchemas = ["PhysxArticulationAPI"]
+        )
+        {
+            bool physxArticulation:enabledSelfCollisions = 0
+
+            over "thumb_proximal_base"
+            {
+                over "thumb_proximal"
+                {
+                    over "thumb_intermediate"
+                    {
+                        over "thumb_distal"
+                        {
+                            over "right_thumb_distal"
+                            {
+                            }
+
+                            over "right_thumb_distal_1"
+                            {
+                            }
+                        }
+
+                        over "right_thumb_intermediate"
+                        {
+                        }
+
+                        over "right_thumb_intermediate_1"
+                        {
+                        }
+                    }
+
+                    over "right_thumb_proximal"
+                    {
+                    }
+
+                    over "right_thumb_proximal_1"
+                    {
+                    }
+                }
+
+                over "right_thumb_proximal_base"
+                {
+                }
+
+                over "right_thumb_proximal_base_1"
+                {
+                }
+            }
+
+            over "index_proximal"
+            {
+                over "index_intermediate"
+                {
+                    over "right_index_intermediate"
+                    {
+                    }
+
+                    over "right_index_intermediate_1"
+                    {
+                    }
+                }
+
+                over "right_index_proximal"
+                {
+                }
+
+                over "right_index_proximal_1"
+                {
+                }
+            }
+
+            over "middle_proximal"
+            {
+                over "middle_intermediate"
+                {
+                }
+
+                over "right_index_proximal"
+                {
+                }
+
+                over "right_index_proximal_1"
+                {
+                }
+            }
+
+            over "ring_proximal"
+            {
+                over "ring_intermediate"
+                {
+                    over "right_index_intermediate"
+                    {
+                    }
+
+                    over "right_index_intermediate_1"
+                    {
+                    }
+                }
+
+                over "right_index_proximal"
+                {
+                }
+
+                over "right_index_proximal_1"
+                {
+                }
+            }
+
+            over "pinky_proximal"
+            {
+                over "pinky_intermediate"
+                {
+                }
+
+                over "right_index_proximal"
+                {
+                }
+
+                over "right_index_proximal_1"
+                {
+                }
+            }
+
+            over "right_base_link"
+            {
+            }
+
+            over "cylinder"
+            {
+            }
+
+            over "box"
+            {
+            }
+
+            over "box_1"
+            {
+            }
+
+            over "box_2"
+            {
+            }
+
+            over "box_3"
+            {
+            }
+
+            over "box_4"
+            {
+            }
+
+            over "box_5"
+            {
+            }
+
+            over "box_6"
+            {
+            }
+        }
+    }
+
+    over "Physics"
+    {
+        over "thumb_proximal_yaw_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_proximal_pitch_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_intermediate_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "thumb_distal_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "index_proximal_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "index_intermediate_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "middle_proximal_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "middle_intermediate_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "ring_proximal_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "ring_intermediate_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "pinky_proximal_joint" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "pinky_intermediate_joint" (
+            delete apiSchemas = ["NewtonMimicAPI"]
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint"
+        {
+        }
+    }
+
+    over "fix_base_joint"
+    {
+    }
+
+    over "Materials"
+    {
+    }
+
+    over "VisualMaterials"
+    {
+    }
+}
+

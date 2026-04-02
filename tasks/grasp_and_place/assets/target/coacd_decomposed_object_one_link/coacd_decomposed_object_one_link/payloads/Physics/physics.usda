@@ -25,7 +25,7 @@ over "root"
     over "Geometry"
     {
         over "link_original" (
-            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsArticulationRootAPI", "NewtonArticulationRootAPI", "PhysicsMassAPI"]
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
         )
         {
             bool newton:selfCollisionEnabled = 0
@@ -35,19 +35,5 @@ over "root"
         }
     }
 
-    over "Physics"
-    {
-        def PhysicsFixedJoint "root_joint"
-        {
-            custom rel physics:body0
-            prepend rel physics:body0 = </root>
-            custom rel physics:body1
-            prepend rel physics:body1 = </root/Geometry/link_original>
-            point3f physics:localPos0 = (0, 0, 0)
-            point3f physics:localPos1 = (0, 0, 0)
-            quatf physics:localRot0 = (1, 0, 0, 0)
-            quatf physics:localRot1 = (1, 0, 0, 0)
-        }
-    }
 }
 

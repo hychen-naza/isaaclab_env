@@ -41,24 +41,38 @@ def Xform "root" (
     {
         def Xform "link_original"
         {
+            # Simple capsule collision for reliable GPU-PhysX contact (convex mesh cooking unreliable).
+            # Bottle: radius=0.055m, half-height=0.103m (height=0.206).
+            # With identity object quaternion and corrected visual mesh (base at local z=0):
+            # capsule bottom = 0.157 - 0.103 - 0.055 = -0.001 ≈ 0 → rests on table.
+            def Capsule "collision_capsule" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                double radius = 0.055
+                double height = 0.206
+                uniform token axis = "Z"
+                uniform token purpose = "guide"
+                double3 xformOp:translate = (0.0, 0.0, 0.157)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+            }
+
             def Xform "frame_000000_object_mesh_grasp_centered" (
                 instanceable = true
                 prepend references = @./instances.usda@</Instances/frame_000000_object_mesh_grasp_centered>
             )
             {
-                quatd xformOp:orient = (1, 0, 0, 0)
+                # Mesh is stored upside-down (neck at local z=0, base at z=0.3149).
+                # Rx(180°) flips z→-z, then translate +0.3149 brings the base to z=0.
+                # xformOpOrder: orient applied first, then translate.
+                quatd xformOp:orient = (0, 1, 0, 0)
                 double3 xformOp:scale = (1, 1, 1)
-                double3 xformOp:translate = (0, 0, 0)
+                double3 xformOp:translate = (0, 0, 0.3148738)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
             }
 
-            def Xform "coacd_allinone" (
-                instanceable = true
-                prepend references = @./instances.usda@</Instances/geometry_8>
-            )
-            {
-                uniform token purpose = "guide"
-            }
+            # Mesh collision hulls omitted — GPU PhysX cannot cook binary mesh references at runtime.
+            # Collision is handled entirely by the capsule primitive above.
         }
     }
 

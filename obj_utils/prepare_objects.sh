@@ -113,10 +113,10 @@ grasp_coacd  = f"{assets}/grasp/coacd_allinone.obj"
 target_coacd = f"{assets}/target/coacd_allinone.obj"
 
 def compute_init_z(obj_path):
-    # Mesh is Z-up with bottom ~z=0.  Isaac Lab positions the root prim origin
-    # at init_pos, so placing init_pos at TABLE_TOP makes the mesh bottom sit on
-    # the table.  We add z_max so the mesh spans [TABLE_TOP, TABLE_TOP+z_max].
-    # (Using centroid_z - z_min was wrong when origin != COM in the loaded USD.)
+    # Mesh is Z-up with bottom at local z=0 (center_mesh guarantees this).
+    # The root prim origin is placed at init_pos; z_max is the height of the object.
+    # Isaac Lab's USD spawn positions the prim so that init_pos.z = TABLE_TOP_Z + z_max
+    # places the mesh bottom on the table (object spans [TABLE_TOP, TABLE_TOP+z_max]).
     m = trimesh.load(obj_path, force="mesh")
     z_max = float(m.vertices[:, 2].max())
     return TABLE_TOP_Z + z_max + CLEARANCE

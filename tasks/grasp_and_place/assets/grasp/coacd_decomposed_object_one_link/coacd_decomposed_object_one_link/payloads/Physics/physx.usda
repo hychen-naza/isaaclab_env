@@ -27,12 +27,8 @@ over "root"
 {
     over "Geometry"
     {
-        over "link_original" (
-            delete apiSchemas = ["NewtonArticulationRootAPI"]
-            prepend apiSchemas = ["PhysxArticulationAPI"]
-        )
+        over "link_original"
         {
-            bool physxArticulation:enabledSelfCollisions = 0
 
             over "frame_000000_object_mesh_grasp_centered"
             {

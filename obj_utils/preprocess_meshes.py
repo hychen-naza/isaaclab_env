@@ -12,19 +12,23 @@ from obj2urdf import process_obj_onelink, CoacdArgs, URDFArgs
 
 
 def reorient_to_z_up(src: Path, dst: Path) -> None:
-    """Rotate mesh so that Meshy's -Y up becomes Z-up (Isaac Sim convention).
+    """Rotate mesh so that Meshy's +Y up becomes Z-up (Isaac Sim convention).
 
-    Applies R_x(-90°):
-      R_x(-90°) = [[1,  0,  0],
-                   [0,  0,  1],
-                   [0, -1,  0]]
-    Effect: old -Y → new Z (up),  old Z → new Y,  old X unchanged.
+    Applies R_x(+90°):
+      R_x(+90°) = [[1,  0,  0],
+                   [0,  0, -1],
+                   [0,  1,  0]]
+    Effect: old +Y (cap/top) → new +Z (up), old -Y (base) → new -Z (down).
+    After center_mesh shifts min-Z to 0, the object base sits at z=0 (Z-up correct).
+
+    Note: the previous Rx(-90°) was wrong — it mapped base→+Z so after centering
+    the base ended up at z_max and the cap at z=0 (upside-down USD).
     """
     import numpy as np
     mesh = tm.load(str(src), force="mesh")
     R = np.array([[1,  0,  0],
-                  [0,  0,  1],
-                  [0, -1,  0]], dtype=np.float64)
+                  [0,  0, -1],
+                  [0,  1,  0]], dtype=np.float64)
     mesh.vertices = mesh.vertices @ R.T
     mesh.export(str(dst))
     print(f"  reoriented {src.name} → {dst.name}  new extents (xyz): {mesh.extents.round(4)}")

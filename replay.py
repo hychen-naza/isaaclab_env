@@ -66,7 +66,6 @@ env_cfg.observation_space = 29 + 256 * 3
 # Rotate camera 180° around Z: move to opposite side (0,+1,0.9) looking in -Y
 env_cfg.camera_pos = (0.0, 1.0, 0.9)
 env_cfg.camera_rot = (0.0, 0.5605, 0.8284, 0.0)  # (x,y,z,w)
-# Move bowl to left side from new camera view (+X = left when facing -Y)
 
 env = GraspAndPlaceEnv(cfg=env_cfg, render_mode=None)
 device = env.device
@@ -94,7 +93,10 @@ else:
     _z_top_offset = 0.095  # fallback
     _y_top_offset = 0.0
 bottle_center = bottle_world.clone()
-bottle_center[2] = bottle_world[2] - _z_top_offset
+# bottle_world is the physics origin = bottom of bottle.
+# bottle_center is the centroid (mid-height), which is bottom + z_top_offset
+# (z_top_offset = max z of centroid-centred pc_data = half-height above centroid).
+bottle_center[2] = bottle_world[2] + _z_top_offset
 bottle_center[1] = bottle_world[1] + 0.05 #_y_top_offset
 print(f"[Replay] bottle_world z={bottle_world[2]:.4f}, y={bottle_world[1]:.4f} "
       f"→ bottle_center z={bottle_center[2]:.4f} (z_top_offset={_z_top_offset:.4f}), "
@@ -102,10 +104,71 @@ print(f"[Replay] bottle_world z={bottle_world[2]:.4f}, y={bottle_world[1]:.4f} "
 
 bottle_world_np = bottle_world.cpu().numpy()
 
+# ── Collision-shape visualization helpers ─────────────────────────────────────
+
+def _capsule_rings(cx, cy, cz, r, h, n_pts=32):
+    """Yield (xs, ys, zs) for capsule wireframe: cylinder rings + hemisphere rings + verticals."""
+    theta = np.linspace(0, 2 * np.pi, n_pts + 1)
+    # Cylinder section: 3 rings
+    for dz in (-h / 2, 0.0, h / 2):
+        yield (cx + r * np.cos(theta), cy + r * np.sin(theta),
+               np.full(n_pts + 1, cz + dz))
+    # Hemisphere rings (2 latitudes per cap)
+    for cap_s in (1, -1):
+        for sin_lat in (0.5, 0.866):
+            r_ring = r * np.sqrt(max(0.0, 1 - sin_lat ** 2))
+            z_ring = cz + cap_s * (h / 2 + r * sin_lat)
+            yield (cx + r_ring * np.cos(theta), cy + r_ring * np.sin(theta),
+                   np.full(n_pts + 1, z_ring))
+    # 4 generatrix vertical lines
+    for ang in (0, np.pi / 2, np.pi, 3 * np.pi / 2):
+        yield (np.array([cx + r * np.cos(ang)] * 2),
+               np.array([cy + r * np.sin(ang)] * 2),
+               np.array([cz - h / 2, cz + h / 2]))
+
+
+def _world_to_px(pts_w, cam_pos, Rwc, fx, fy, cx_img, cy_img):
+    """Project Nx3 world points → pixel (u, v); NaN for behind-camera pts."""
+    pc = (Rwc.T @ (np.asarray(pts_w) - cam_pos).T).T
+    d  = pc[:, 0]
+    u  = np.where(d > 0.01, -pc[:, 1] / np.maximum(d, 1e-6) * fx + cx_img, np.nan)
+    v  = np.where(d > 0.01, -pc[:, 2] / np.maximum(d, 1e-6) * fy + cy_img, np.nan)
+    return u, v
+
+
+def _draw_col_capsule(ax3d, ax2d, cx_w, cy_w, cz_w, r, h, c3d, c2d,
+                       cam_pos, Rwc, fx, fy, cx_img, cy_img,
+                       label=None, img_w=1920, img_h=1280,
+                       draw_3d=True, draw_2d=True):
+    """Draw capsule wireframe on 3D axes AND/OR projected on 2D RGB image axes.
+
+    All coordinates (cx_w, cy_w, cz_w, cam_pos) must be in the same reference frame.
+    For ax3d (bottle-ref frame): pass bottle-ref coords + shifted cam_pos.
+    For ax2d (world frame): pass world coords + world cam_pos.
+    Since (pts - cam_pos) is frame-invariant, a single call with either convention
+    produces correct 2D projections AND correct 3D wireframe positions.
+    """
+    first = True
+    for xs, ys, zs in _capsule_rings(cx_w, cy_w, cz_w, r, h):
+        if draw_3d:
+            kw3 = dict(color=c3d, linewidth=0.9, alpha=0.75)
+            if first and label:
+                kw3['label'] = label
+                first = False
+            ax3d.plot(xs, ys, zs, **kw3)
+        if draw_2d:
+            pts = np.stack([xs, ys, zs], axis=1)
+            u, v = _world_to_px(pts, cam_pos, Rwc, fx, fy, cx_img, cy_img)
+            vis = np.isfinite(u) & np.isfinite(v) & (u >= 0) & (v >= 0) & (u < img_w) & (v < img_h)
+            u[~vis] = np.nan; v[~vis] = np.nan
+            if np.isfinite(u).sum() > 1:
+                ax2d.plot(u, v, color=c2d, linewidth=1.2, alpha=0.75)
+
+
 # ── Point-cloud helper ────────────────────────────────────────────────────────
 def _make_combined_frame(rgb_np: np.ndarray, depth_np: np.ndarray,
                           bottle_pos_w: np.ndarray) -> np.ndarray:
-    """Return a combined uint8 image: RGB on left, top-down point cloud on right."""
+    """Return a combined uint8 image with RGB, depth, 3-D point cloud and collision meshes."""
     K        = env.camera.data.intrinsic_matrices[0].cpu().numpy()
     fx, fy   = K[0, 0], K[1, 1]
     cx, cy   = K[0, 2], K[1, 2]
@@ -114,8 +177,6 @@ def _make_combined_frame(rgb_np: np.ndarray, depth_np: np.ndarray,
     d        = depth_np.ravel()
     valid    = np.isfinite(d) & (d > 0) & (d < 3.0)
     d        = d[valid]
-    # Isaac Lab TiledCamera convention: X=forward (depth), Y=left (negated u), Z=up
-    # Negate Y so that image-left maps to +X_world for this camera (at Y=+1 looking -Y).
     x_cam    =  d
     y_cam    = -((us.ravel()[valid] - cx) / fx) * d
     z_cam    = -((vs.ravel()[valid] - cy) / fy) * d
@@ -141,7 +202,7 @@ def _make_combined_frame(rgb_np: np.ndarray, depth_np: np.ndarray,
         print(f"[DEBUG] pts_world Z range: {pts_world[:,2].min():.3f} to {pts_world[:,2].max():.3f}")
         print(f"[DEBUG] bottle_pos_w={bottle_pos_w}")
         _make_combined_frame._printed2 = True
-    on_table   = pts_world[:, 2] > 0.36          # shared floor mask
+    on_table   = pts_world[:, 2] > 0.36
     pts        = pts_world[on_table] - bottle_pos_w
 
     if len(pts) > 8000:
@@ -150,9 +211,9 @@ def _make_combined_frame(rgb_np: np.ndarray, depth_np: np.ndarray,
 
     z_norm = (pts[:, 2] - pts[:, 2].min()) / (pts[:, 2].max() - pts[:, 2].min() + 1e-6)
 
-    fig = plt.figure(figsize=(16, 10), dpi=100)
+    fig = plt.figure(figsize=(20, 12), dpi=100)
 
-    # Top-left: RGB
+    # Top-left: RGB only (clean, no overlays)
     ax_rgb = fig.add_subplot(2, 2, 1)
     ax_rgb.imshow(rgb_np)
     ax_rgb.axis("off")
@@ -165,19 +226,62 @@ def _make_combined_frame(rgb_np: np.ndarray, depth_np: np.ndarray,
     ax_depth.axis("off")
     ax_depth.set_title("Depth")
 
-    # Bottom: bottle-centred world-frame point cloud (spans full width)
+    # Shared data for bottom panels
     bowl_pos_w  = wp.to_torch(env.bowl.data.root_pos_w)[0].cpu().numpy()
     bowl_rel    = bowl_pos_w - bottle_pos_w
-    ax_pc = fig.add_subplot(2, 1, 2, projection="3d")
+    bot_pos_now = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
+    bot_rel     = bot_pos_now - bottle_pos_w  # bottle current pos in bottle-ref frame
+
+    tz = 0.40 - bottle_pos_w[2]   # table-top z in bottle-ref frame
+    tx0, tx1 = -0.6 - bottle_pos_w[0], 0.6 - bottle_pos_w[0]
+    ty0, ty1 = -0.35 - bottle_pos_w[1], 0.35 - bottle_pos_w[1]
+    rect_x = np.array([tx0, tx1, tx1, tx0, tx0])
+    rect_y = np.array([ty0, ty0, ty1, ty1, ty0])
+    cam_ref = cam_pos_w - bottle_pos_w  # camera pos in bottle-ref frame
+
+    # Bottom-left: 3D point cloud (scatter only, no wireframes)
+    ax_pc = fig.add_subplot(2, 2, 3, projection="3d")
     ax_pc.scatter(pts[:, 0], pts[:, 1], pts[:, 2],
                   c=z_norm, cmap="viridis", s=2, alpha=0.6)
     ax_pc.scatter([bowl_rel[0]], [bowl_rel[1]], [bowl_rel[2]],
-                  c='red', s=80, marker='*', label=f'bowl ({bowl_rel[0]:.2f},{bowl_rel[2]:.2f})')
-    ax_pc.scatter([0], [0], [0], c='cyan', s=80, marker='*', label='bottle(0,0)')
+                  c='red', s=80, marker='*', label=f'bowl z={bowl_rel[2]+bottle_pos_w[2]:.3f}')
+    ax_pc.scatter([bot_rel[0]], [bot_rel[1]], [bot_rel[2]],
+                  c='cyan', s=80, marker='*', label=f'bottle z={bot_pos_now[2]:.3f}')
     ax_pc.legend(fontsize=7)
-    ax_pc.set_xlabel("X (m)"); ax_pc.set_ylabel("Y (m)"); ax_pc.set_zlabel("Z (m)")
-    ax_pc.set_title("Point cloud (world, bottle-centred)")
-    #ax_pc2.view_init(elev=20, azim=-60)
+    ax_pc.set_xlabel("X"); ax_pc.set_ylabel("Y"); ax_pc.set_zlabel("Z")
+    ax_pc.set_title("Point cloud (bottle-centred)")
+
+    # Bottom-right: Collision mesh wireframes only
+    ax_col = fig.add_subplot(2, 2, 4, projection="3d")
+    # Table top outline
+    ax_col.plot(rect_x, rect_y, np.full(5, tz), 'g-', linewidth=2, alpha=0.9, label='table top')
+    # Bottle capsule
+    _draw_col_capsule(
+        ax_col, None,
+        cx_w=bot_rel[0], cy_w=bot_rel[1], cz_w=bot_rel[2] + 0.157,
+        r=0.055, h=0.206,
+        c3d='dodgerblue', c2d='dodgerblue',
+        cam_pos=cam_ref, Rwc=R_wc,
+        fx=fx, fy=fy, cx_img=cx, cy_img=cy,
+        label='bottle capsule',
+        img_w=W, img_h=H,
+        draw_3d=True, draw_2d=False,
+    )
+    # Bowl capsule
+    _draw_col_capsule(
+        ax_col, None,
+        cx_w=bowl_rel[0], cy_w=bowl_rel[1], cz_w=bowl_rel[2] + 0.111,
+        r=0.092, h=0.038,
+        c3d='darkorange', c2d='darkorange',
+        cam_pos=cam_ref, Rwc=R_wc,
+        fx=fx, fy=fy, cx_img=cx, cy_img=cy,
+        label='bowl capsule',
+        img_w=W, img_h=H,
+        draw_3d=True, draw_2d=False,
+    )
+    ax_col.legend(fontsize=7)
+    ax_col.set_xlabel("X"); ax_col.set_ylabel("Y"); ax_col.set_zlabel("Z")
+    ax_col.set_title(f"Collision capsules  bottle_z={bot_pos_now[2]:.3f}  bowl_z={bowl_pos_w[2]:.3f}")
 
     plt.tight_layout()
     fig.canvas.draw()
@@ -203,15 +307,28 @@ prev_pos_world  = None
 prev_joint_pos  = None
 dt = env.physics_dt
 
-# Manual contact parameters (PhysX GPU articulation-rigidbody contact doesn't work)
-# Estimate bottle radius from pc_data point cloud
-if _bottle_pcs:
-    _r_xy = float(np.sqrt((_first_pts[:, :2] ** 2).sum(axis=1).max()))
-else:
-    _r_xy = 0.04
-BOTTLE_CONTACT_RADIUS = _r_xy * 1.1   # slight margin
-CONTACT_STIFFNESS     = 200.0          # impulse scale (N·s/m equivalent)
-print(f"[Replay] bottle contact radius = {BOTTLE_CONTACT_RADIUS:.4f} m", flush=True)
+# Note: GPU PhysX articulation-rigidbody contact does not generate impulses, so
+# the hand passes through the bottle in simulation. We rely on table-capsule collision
+# to keep objects on the table; no manual contact force is applied.
+
+# ── Velocity sanity check ─────────────────────────────────────────────────────
+# Kick the bottle at 1 m/s +X for 5 steps to verify it can actually be moved.
+pos_before = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy().copy()
+kick_vel = torch.zeros(1, 6, device=device); kick_vel[0, 0] = 1.0
+for _k in range(5):
+    env.bottle.write_root_velocity_to_sim(kick_vel)
+    env.sim.step(render=False)
+    env.sim.render()
+    env.scene.update(dt=dt)
+pos_after = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy().copy()
+print(f"[Sanity] bottle pos before kick: {np.round(pos_before,4)}", flush=True)
+print(f"[Sanity] bottle pos after  kick: {np.round(pos_after,4)}", flush=True)
+# Reset bottle to original position
+env.bottle.write_root_pose_to_sim(
+    torch.tensor([[*env_cfg.bottle_init_pos, 0.0, 0.0, 0.0, 1.0]], device=device)  # xyzw identity, matches _OBJ_QUAT_NP
+)
+env.bottle.write_root_velocity_to_sim(torch.zeros(1, 6, device=device))
+env.sim.step(render=False); env.sim.render(); env.scene.update(dt=dt)
 bottle_pw = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
 
 for frame_idx in frames:
@@ -263,34 +380,13 @@ for frame_idx in frames:
     prev_pos_world = pos_world.clone()
     prev_joint_pos = all_joint_pos.clone()
 
-    # Collision/contact check: print if bottle moves
+    # Track bottle/bowl positions (no manual contact force — let PhysX table collision handle it)
     bottle_pos_now = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
+    bowl_pos_now   = wp.to_torch(env.bowl.data.root_pos_w)[0].cpu().numpy()
     bottle_disp    = np.linalg.norm(bottle_pos_now - bottle_world_np)
-    hand_pos_np    = pos_world[0].cpu().numpy()
-    hand_bottle_dist = np.linalg.norm(hand_pos_np - bottle_pos_now)
-    # Manual contact force: articulation-RigidBody GPU contact doesn't generate impulses
-    body_pos = wp.to_torch(env.robot.data.body_pos_w)[0].cpu().numpy()  # (num_links, 3)
-    bottle_vel_t = wp.to_torch(env.bottle.data.root_vel_w)[0].cpu().numpy()  # (6,) lin+ang
-    link_dists   = np.linalg.norm(body_pos - bottle_pos_now[None], axis=-1)
-    min_link_dist = link_dists.min()
-    min_link_idx  = int(link_dists.argmin())
-    contact_applied = False
-    for li, (lp, ld) in enumerate(zip(body_pos, link_dists)):
-        if ld < BOTTLE_CONTACT_RADIUS and ld > 1e-4:
-            penetration = BOTTLE_CONTACT_RADIUS - ld
-            normal      = (bottle_pos_now - lp) / ld  # push bottle away from link
-            delta_v     = normal * (CONTACT_STIFFNESS * penetration * dt)
-            bottle_vel_t[:3] += delta_v
-            contact_applied = True
-    if contact_applied:
-        env.bottle.write_root_velocity_to_sim(
-            torch.tensor(bottle_vel_t[None], dtype=torch.float32, device=device)
-        )
-        env.scene.write_data_to_sim()
-
-    if bottle_disp > 0.005 or min_link_dist < BOTTLE_CONTACT_RADIUS:
-        print(f"[Contact] frame={frame_idx}  closest_link={min_link_idx} dist={min_link_dist:.3f}m  "
-              f"bottle_moved={bottle_disp:.4f}m  bottle_pos={np.round(bottle_pos_now,3)}", flush=True)
+    if frame_idx % 30 == 0:
+        print(f"[Replay] frame={frame_idx}  bottle_z={bottle_pos_now[2]:.4f}  "
+              f"bowl_z={bowl_pos_now[2]:.4f}", flush=True)
 
     # Capture RGB + point cloud → combined frame (use fixed initial bottle pos for centering)
     rgb      = env.camera.data.output["rgb"][0, :, :, :3].cpu().numpy().astype(np.uint8)

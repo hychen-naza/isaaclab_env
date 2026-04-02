@@ -39,7 +39,9 @@ BOWL_URDF   = str(_ASSETS_DIR / "target" / "coacd_decomposed_object_one_link.urd
 
 # Objects are pre-processed to Z-up + centered by prepare_objects.sh,
 # so identity quaternion (w=1) is correct — no additional rotation needed.
-_OBJ_QUAT_NP = np.array([1.0, 0.0, 0.0, 0.0])  # (w, x, y, z)
+_OBJ_QUAT_NP = np.array([0.0, 0.0, 0.0, 1.0])  # (x, y, z, w) — identity
+# USD models are stored Z-up with the corrective Rx(180°)+translate baked into the visual mesh
+# xformOp inside base.usda, so no runtime rotation is needed.
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -65,11 +67,15 @@ def _make_obj_cfg(prim_path: str, usd_path: str,
         prim_path=prim_path,
         spawn=sim_utils.UsdFileCfg(
             usd_path=usd_path,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=kinematic),
-            mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
-            articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-                articulation_enabled=False
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                kinematic_enabled=kinematic,
+                linear_damping=0.5,
+                angular_damping=8.0,
+                max_linear_velocity=2.0,
+                max_angular_velocity=10.0,
+                max_depenetration_velocity=0.5,
             ),
+            mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
         ),
         init_state=RigidObjectCfg.InitialStateCfg(
             pos=init_pos,
@@ -216,6 +222,9 @@ class GraspAndPlaceEnv(DirectRLEnv):
         # Clone environments and filter collisions (required by DirectRLEnv)
         self.scene.clone_environments(copy_from_source=True)
         self.scene.filter_collisions(global_prim_paths=[])
+        # Capsule collision shapes are embedded directly in the bottle/bowl USD files
+        # (base.usda) so they are registered before physics init — no runtime addition needed.
+
 
 
     # ── Robometer reward model ────────────────────────────────────────────────
@@ -518,7 +527,7 @@ class GraspAndPlaceEnv(DirectRLEnv):
         # Robot root (identity orientation, zero velocity)
         root_state = torch.zeros(n, 13, device=self.device)
         root_state[:, :3] = self._hand_init_pos
-        root_state[:, 3]  = 1.0   # w = 1 (identity quaternion)
+        root_state[:, 6]  = 1.0   # qw = 1 (identity quaternion; write_root_pose_to_sim uses xyzw)
         self.robot.write_root_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.robot.write_root_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 

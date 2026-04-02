@@ -76,6 +76,7 @@ def make_inspire_hand_cfg(
             usd_path=usd_path,
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
                 articulation_enabled=True,
+                fix_root_link=True,  # kinematic root: generates contact forces on dynamic bodies
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(

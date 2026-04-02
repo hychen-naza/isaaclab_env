@@ -95,7 +95,7 @@ else:
     _y_top_offset = 0.0
 bottle_center = bottle_world.clone()
 bottle_center[2] = bottle_world[2] - _z_top_offset
-bottle_center[1] = bottle_world[1] - _y_top_offset
+bottle_center[1] = bottle_world[1] + 0.05 #_y_top_offset
 print(f"[Replay] bottle_world z={bottle_world[2]:.4f}, y={bottle_world[1]:.4f} "
       f"→ bottle_center z={bottle_center[2]:.4f} (z_top_offset={_z_top_offset:.4f}), "
       f"y={bottle_center[1]:.4f} (y_top_offset={_y_top_offset:.4f})")
@@ -202,6 +202,16 @@ rgb_frames = []
 prev_pos_world  = None
 prev_joint_pos  = None
 dt = env.physics_dt
+
+# Manual contact parameters (PhysX GPU articulation-rigidbody contact doesn't work)
+# Estimate bottle radius from pc_data point cloud
+if _bottle_pcs:
+    _r_xy = float(np.sqrt((_first_pts[:, :2] ** 2).sum(axis=1).max()))
+else:
+    _r_xy = 0.04
+BOTTLE_CONTACT_RADIUS = _r_xy * 1.1   # slight margin
+CONTACT_STIFFNESS     = 200.0          # impulse scale (N·s/m equivalent)
+print(f"[Replay] bottle contact radius = {BOTTLE_CONTACT_RADIUS:.4f} m", flush=True)
 bottle_pw = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
 
 for frame_idx in frames:
@@ -258,9 +268,29 @@ for frame_idx in frames:
     bottle_disp    = np.linalg.norm(bottle_pos_now - bottle_world_np)
     hand_pos_np    = pos_world[0].cpu().numpy()
     hand_bottle_dist = np.linalg.norm(hand_pos_np - bottle_pos_now)
-    if bottle_disp > 0.005 or hand_bottle_dist < 0.15:
-        print(f"[Contact] frame={frame_idx}  hand-bottle dist={hand_bottle_dist:.3f}m  "
-              f"bottle moved={bottle_disp:.4f}m  bottle_pos={np.round(bottle_pos_now,3)}")
+    # Manual contact force: articulation-RigidBody GPU contact doesn't generate impulses
+    body_pos = wp.to_torch(env.robot.data.body_pos_w)[0].cpu().numpy()  # (num_links, 3)
+    bottle_vel_t = wp.to_torch(env.bottle.data.root_vel_w)[0].cpu().numpy()  # (6,) lin+ang
+    link_dists   = np.linalg.norm(body_pos - bottle_pos_now[None], axis=-1)
+    min_link_dist = link_dists.min()
+    min_link_idx  = int(link_dists.argmin())
+    contact_applied = False
+    for li, (lp, ld) in enumerate(zip(body_pos, link_dists)):
+        if ld < BOTTLE_CONTACT_RADIUS and ld > 1e-4:
+            penetration = BOTTLE_CONTACT_RADIUS - ld
+            normal      = (bottle_pos_now - lp) / ld  # push bottle away from link
+            delta_v     = normal * (CONTACT_STIFFNESS * penetration * dt)
+            bottle_vel_t[:3] += delta_v
+            contact_applied = True
+    if contact_applied:
+        env.bottle.write_root_velocity_to_sim(
+            torch.tensor(bottle_vel_t[None], dtype=torch.float32, device=device)
+        )
+        env.scene.write_data_to_sim()
+
+    if bottle_disp > 0.005 or min_link_dist < BOTTLE_CONTACT_RADIUS:
+        print(f"[Contact] frame={frame_idx}  closest_link={min_link_idx} dist={min_link_dist:.3f}m  "
+              f"bottle_moved={bottle_disp:.4f}m  bottle_pos={np.round(bottle_pos_now,3)}", flush=True)
 
     # Capture RGB + point cloud → combined frame (use fixed initial bottle pos for centering)
     rgb      = env.camera.data.output["rgb"][0, :, :, :3].cpu().numpy().astype(np.uint8)

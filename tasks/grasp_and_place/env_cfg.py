@@ -57,7 +57,7 @@ class GraspAndPlaceEnvCfg(DirectRLEnvCfg):
     # Bowl at x=-0.354 m estimated from camera-frame centroids (pourtea.mp4).
     hand_init_pos:   tuple = (0.0, -0.15, 0.9)
     bottle_init_pos: tuple = (0.0, 0.0, 0.7215)
-    bowl_init_pos:   tuple = (-0.3538, -0.0034, 0.4810)
+    bowl_init_pos:   tuple = (0.3538, -0.0034, 0.4810)
 
     # ── Action scales ─────────────────────────────────────────────────────────
     pos_action_scale: float = 0.02   # max metres the hand can translate per step

@@ -8,7 +8,7 @@ from isaaclab.utils import configclass
 from tasks.base.base_env_cfg import BaseManipEnvCfg
 
 # Re-export observation dimension constants (used by train.py / eval.py / vis.py)
-from tasks.base.base_env_cfg import OBS_JOINT_DIM, N_POINTS, OBS_STATE_DIM, OBS_CLOUD_DIM  # noqa: F401
+from tasks.base.base_env_cfg import OBS_JOINT_DIM, N_POINTS, N_TABLE_POINTS, OBS_STATE_DIM, OBS_CLOUD_DIM  # noqa: F401
 
 _ASSETS_DIR = Path(__file__).parent / "assets"
 

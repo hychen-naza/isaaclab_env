@@ -5,7 +5,7 @@ from pathlib import Path
 
 from isaaclab.utils import configclass
 
-from tasks.base.base_env_cfg import BaseManipEnvCfg
+from tasks.base.base_env_cfg import BaseManipEnvCfg, OBS_STATE_DIM, OBS_CLOUD_DIM
 
 _ASSETS_DIR = Path(__file__).parent / "assets"
 

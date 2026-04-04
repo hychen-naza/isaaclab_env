@@ -50,17 +50,22 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
-import tasks.grasp_and_place  # noqa: F401  register gym env
-from tasks.grasp_and_place.env     import GraspAndPlaceEnv
-from tasks.grasp_and_place.env_cfg import GraspAndPlaceEnvCfg
+import importlib
+importlib.import_module(f"tasks.{args.task}")
+env_mod  = importlib.import_module(f"tasks.{args.task}.env")
+cfg_mod  = importlib.import_module(f"tasks.{args.task}.env_cfg")
+TaskEnv    = env_mod.TaskEnv
+TaskEnvCfg = cfg_mod.TaskEnvCfg
+OBS_STATE_DIM = cfg_mod.OBS_STATE_DIM
+OBS_CLOUD_DIM = cfg_mod.OBS_CLOUD_DIM
 
 # ── Create env (single instance) ─────────────────────────────────────────────
-env_cfg = GraspAndPlaceEnvCfg()
+env_cfg = TaskEnvCfg()
 env_cfg.scene.num_envs = 1
 if args.use_camera:
     env_cfg.use_camera = True
-    env_cfg.observation_space = 29 + 256 * 3  # OBS_STATE_DIM + OBS_CLOUD_DIM
-env = GraspAndPlaceEnv(cfg=env_cfg, render_mode="human" if args.gui else None)
+    env_cfg.observation_space = OBS_STATE_DIM + OBS_CLOUD_DIM
+env = TaskEnv(cfg=env_cfg, render_mode="human" if args.gui else None)
 
 # Let physics settle with zero actions
 obs, _ = env.reset()
@@ -138,46 +143,13 @@ if env.camera is not None:
     plt.close(fig)
     print(f"Saved → {depth_path}")
 
-    # Point cloud — back-project depth → world frame, zero-centred on bottle
-    K  = env.camera.data.intrinsic_matrices[0].cpu().numpy()
-    fx, fy = K[0, 0], K[1, 1]
-    cx, cy = K[0, 2], K[1, 2]
-    H, W   = depth_np.shape
-    us, vs = np.meshgrid(np.arange(W), np.arange(H))
-    d = depth_np.ravel()
-    valid = np.isfinite(d) & (d > 0) & (d < 3.0)   # ~3 m captures scene, drops distant floor
-    d = d[valid]
-
-    # Isaac Lab TiledCamera: X-forward (depth), Y-right (pixel u), Z-up (flip v)
-    x_cam =  d
-    y_cam =  ((us.ravel()[valid] - cx) / fx) * d
-    z_cam = -((vs.ravel()[valid] - cy) / fy) * d   # flip: pixel-v goes down, Z is up
-    pts_cam = np.stack([x_cam, y_cam, z_cam], axis=1)  # (N, 3)
-
-    # Camera pose in world frame
-    cam_pos_w  = env.camera.data.pos_w[0].cpu().numpy()          # (3,)
-    quat_xyzw  = env.camera.data.quat_w_world[0].cpu().numpy()   # (x,y,z,w)
-    qx, qy, qz, qw = quat_xyzw
-    R_wc = np.array([                                              # world-from-cam
-        [1-2*(qy*qy+qz*qz), 2*(qx*qy-qz*qw), 2*(qx*qz+qy*qw)],
-        [2*(qx*qy+qz*qw), 1-2*(qx*qx+qz*qz), 2*(qy*qz-qx*qw)],
-        [2*(qx*qz-qy*qw), 2*(qy*qz+qx*qw), 1-2*(qx*qx+qy*qy)],
-    ])
-    pts_world = (R_wc @ pts_cam.T).T + cam_pos_w   # (N, 3)
-
-    # Keep only points at/above table level (exclude floor at world Z ≈ 0)
-    table_z_thresh = 0.36   # world frame (m) — just below table bottom
-    on_table = pts_world[:, 2] > table_z_thresh
-    pts_world = pts_world[on_table]
-
-    # Zero-centre around bottle (grasp object)
-    pts = pts_world - bottle_pos
-
-    print(f"  Valid cloud points: {valid.sum()} / {depth_np.size}")
-    print(f"  Depth range: [{d.min():.3f}, {d.max():.3f}]")
-    print(f"  World-frame X: [{pts[:,0].min():.3f}, {pts[:,0].max():.3f}]")
-    print(f"  World-frame Y: [{pts[:,1].min():.3f}, {pts[:,1].max():.3f}]")
-    print(f"  World-frame Z: [{pts[:,2].min():.3f}, {pts[:,2].max():.3f}]")
+    # Point cloud — use env._compute_pointcloud() directly (same as RL observation)
+    import torch
+    grasp_pts_t, target_pts_t, table_pts_t = env._compute_pointcloud()
+    grasp_np  = grasp_pts_t[0].cpu().numpy()   # (256, 3) bottle-centric
+    target_np = target_pts_t[0].cpu().numpy()  # (256, 3) bottle-centric
+    table_np  = table_pts_t[0].cpu().numpy()   # (256, 3) bottle-centric
+    pts       = np.concatenate([grasp_np, target_np, table_np], axis=0)
 
     views = [
         ("Perspective",  25, -60),
@@ -185,22 +157,62 @@ if env.camera is not None:
         ("Front (XZ)",    0,  90),
         ("Side (YZ)",     0,   0),
     ]
-    z_norm = (pts[:, 2] - pts[:, 2].min()) / (pts[:, 2].max() - pts[:, 2].min() + 1e-6)
+    colors = (["dodgerblue"] * len(grasp_np) +
+              ["tomato"]     * len(target_np) +
+              ["orange"]     * len(table_np))
     fig = plt.figure(figsize=(14, 10))
     for idx, (title, elev, azim) in enumerate(views, start=1):
         ax = fig.add_subplot(2, 2, idx, projection="3d")
-        sc = ax.scatter(pts[:, 0], pts[:, 1], pts[:, 2],
-                        c=z_norm, cmap="viridis", s=4, alpha=0.7)
+        ax.scatter(grasp_np[:,0],  grasp_np[:,1],  grasp_np[:,2],
+                   c="dodgerblue", s=6, alpha=0.8, label="grasp")
+        ax.scatter(target_np[:,0], target_np[:,1], target_np[:,2],
+                   c="tomato",     s=6, alpha=0.8, label="target")
+        ax.scatter(table_np[:,0],  table_np[:,1],  table_np[:,2],
+                   c="orange",     s=4, alpha=0.5, label="table")
         ax.set_xlabel("X (m)"); ax.set_ylabel("Y (m)"); ax.set_zlabel("Z (m)")
         ax.set_title(title); ax.view_init(elev=elev, azim=azim)
-    fig.colorbar(sc, ax=fig.axes, label="Z (normalised, bottle=0)", shrink=0.5)
-    fig.suptitle(f"World-frame point cloud (bottle-centred) — {args.task}  ({valid.sum()} pts)",
-                 fontsize=13, y=1.01)
+        if idx == 1:
+            ax.legend(fontsize=8)
+    fig.suptitle(f"Obs point cloud (bottle-centred) — {args.task}  "
+                 f"grasp={len(grasp_np)} target={len(target_np)} table={len(table_np)}",
+                 fontsize=12, y=1.01)
     plt.tight_layout()
     cloud_path = out_dir / "pointcloud.png"
     fig.savefig(cloud_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved → {cloud_path}")
+
+# ── Interactive Plotly point-cloud visualisation ──────────────────────────────
+if env.camera is not None:
+    try:
+        import plotly.graph_objects as go
+
+        # reuse already-computed arrays from above
+
+        traces = [
+            go.Scatter3d(x=grasp_np[:,0],  y=grasp_np[:,1],  z=grasp_np[:,2],
+                         mode='markers', marker=dict(size=2, color='steelblue', opacity=0.8),
+                         name=f'grasp object ({len(grasp_np)} pts)'),
+            go.Scatter3d(x=target_np[:,0], y=target_np[:,1], z=target_np[:,2],
+                         mode='markers', marker=dict(size=2, color='tomato', opacity=0.8),
+                         name=f'target object ({len(target_np)} pts)'),
+            go.Scatter3d(x=table_np[:,0],  y=table_np[:,1],  z=table_np[:,2],
+                         mode='markers', marker=dict(size=2, color='saddlebrown', opacity=0.4),
+                         name=f'table ({len(table_np)} pts)'),
+        ]
+        fig = go.Figure(data=traces)
+        fig.update_layout(
+            title=f"Bottle-centric point cloud — {args.task}  (origin = bottle bottom)",
+            scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z', aspectmode='data'),
+            height=700,
+        )
+        html_path = out_dir / "pc_vis.html"
+        fig.write_html(str(html_path), include_plotlyjs='cdn')
+        print(f"Saved → {html_path}  (interactive Plotly, open in browser)")
+    except ImportError:
+        print("[Vis] plotly not installed — skipping HTML visualisation (pip install plotly)")
+    except Exception as _e:
+        print(f"[Vis] interactive vis failed: {_e}")
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 if args.gui:

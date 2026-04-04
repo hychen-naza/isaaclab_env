@@ -24,9 +24,10 @@ from isaaclab.utils import configclass
 #
 # Update OBS_JOINT_DIM if mimic joints are collapsed by PhysX (check at runtime).
 OBS_JOINT_DIM  = 12
-N_POINTS       = 256   # number of sampled points from the depth image
+N_POINTS       = 256   # points per object (grasp + target) sampled near each object
+N_TABLE_POINTS = 256   # table surface points (FPS)
 OBS_STATE_DIM  = 3 + 4 + OBS_JOINT_DIM + 3 + 4 + 3   # = 29
-OBS_CLOUD_DIM  = N_POINTS * 3                           # = 768
+OBS_CLOUD_DIM  = N_POINTS * 2 * 3 + N_TABLE_POINTS * 3  # 512*3 + 256*3 = 2304
 
 
 @configclass
@@ -43,7 +44,7 @@ class BaseManipEnvCfg(DirectRLEnvCfg):
     use_camera: bool = False
 
     # ── RL spaces ─────────────────────────────────────────────────────────────
-    observation_space: int = OBS_STATE_DIM   # 29; becomes 797 when use_camera=True
+    observation_space: int = OBS_STATE_DIM   # 29; becomes 1181 when use_camera=True
     action_space: int      = 9    # 3 (hand xyz delta) + 6 (finger joint targets)
     state_space: int       = 0    # no asymmetric critic
 
@@ -86,14 +87,28 @@ class BaseManipEnvCfg(DirectRLEnvCfg):
     robometer_frame_size:        tuple = (448, 448)
 
     # ── Depth camera ──────────────────────────────────────────────────────────
-    camera_pos: tuple           = (0.0, -1.0, 0.9)
-    camera_rot: tuple           = (0.5605, 0.0, 0.0, 0.8284)  # (x,y,z,w) — looks along +Y, tilted down
+    camera_pos: tuple           = (0.0, 1.0, 0.9)
+    camera_rot: tuple           = (0.0, 0.5605, 0.8284, 0.0)  # (x,y,z,w) — looks along -Y, tilted down
     camera_width: int           = 1920
     camera_height: int          = 1280
     camera_focal_length: float  = 24.0
     camera_horiz_aperture: float = 38.01   # gives fx≈808 px at 1280 px width
     n_pointcloud_points: int    = N_POINTS
+    n_table_points: int         = N_TABLE_POINTS
     camera_clipping: tuple      = (0.1, 5.0)   # (near, far) metres
+
+    # ── Point-cloud centering ─────────────────────────────────────────────────
+    # Which object's fixed initial position to use as the point-cloud origin.
+    # "bottle" = grasp target (default), "bowl" = goal object.
+    # The center is frozen at the initial position so the coordinate frame stays
+    # stable even as the object moves during a trajectory.
+    pointcloud_center: str      = "bottle"
+
+    # ── Debug frame saving ────────────────────────────────────────────────────
+    # Set debug_frame_dir to a directory path to save RGB + point-cloud
+    # visualisation PNGs for the first debug_frame_count observation steps.
+    debug_frame_dir:   str      = ""
+    debug_frame_count: int      = 5
 
     # ── Task-specific fields — subclasses MUST override ───────────────────────
     # Asset URDF paths (task-specific objects).

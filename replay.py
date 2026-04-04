@@ -29,6 +29,8 @@ parser.add_argument("--fps",     type=int,   default=30,
                     help="Output video frame rate")
 parser.add_argument("--settle",  type=int,   default=30,
                     help="Physics steps to run before replay starts")
+parser.add_argument("--debug_frame_dir", type=str, default=None,
+                    help="Save N observation debug PNGs to this dir (tests base env point cloud)")
 AppLauncher.add_app_launcher_args(parser)
 args = parser.parse_args()
 
@@ -63,6 +65,8 @@ env_mod  = importlib.import_module(f"tasks.{args.task}.env")
 cfg_mod  = importlib.import_module(f"tasks.{args.task}.env_cfg")
 TaskEnv    = env_mod.TaskEnv
 TaskEnvCfg = cfg_mod.TaskEnvCfg
+OBS_STATE_DIM = cfg_mod.OBS_STATE_DIM
+OBS_CLOUD_DIM = cfg_mod.OBS_CLOUD_DIM
 
 # ── Load trajectory ───────────────────────────────────────────────────────────
 print(f"[Replay] task={args.task}  Loading {args.pc_data}")
@@ -76,11 +80,10 @@ print(f"[Replay] {len(frames)} frames  (indices {frames[0]}–{frames[-1]})")
 env_cfg = TaskEnvCfg()
 env_cfg.scene.num_envs  = 1
 env_cfg.use_camera      = True
-env_cfg.observation_space = 29 + 256 * 3
-# Rotate camera 180° around Z: move to opposite side (0,+1,0.9) looking in -Y
-env_cfg.camera_pos = (0.0, 1.0, 0.9)
-env_cfg.camera_rot = (0.0, 0.5605, 0.8284, 0.0)  # (x,y,z,w)
-
+env_cfg.observation_space = OBS_STATE_DIM + OBS_CLOUD_DIM
+if args.debug_frame_dir:
+    env_cfg.debug_frame_dir   = args.debug_frame_dir
+    env_cfg.debug_frame_count = 5
 env = TaskEnv(cfg=env_cfg, render_mode=None)
 device = env.device
 

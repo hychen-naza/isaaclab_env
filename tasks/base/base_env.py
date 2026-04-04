@@ -93,6 +93,12 @@ class BaseManipEnv(DirectRLEnv):
         self._bottle_init_pos = torch.tensor(cfg.bottle_init_pos, device="cpu")
         self._bowl_init_pos   = torch.tensor(cfg.bowl_init_pos,   device="cpu")
 
+        # Fixed point-cloud centering origin: frozen at the configured object's
+        # initial position so the frame is stable even as the object moves.
+        _center_src = cfg.bowl_init_pos if cfg.pointcloud_center == "bowl" else cfg.bottle_init_pos
+        self._pc_center_init_pos = torch.tensor(_center_src, dtype=torch.float32, device="cpu")
+        self._debug_frames_saved = 0   # counter — incremented in _save_debug_frame
+
         # Placeholders — finger joint info resolved after super().__init__() starts physics
         self._finger_joint_ids:    list[int]    = []
         self._finger_joint_mins:   torch.Tensor = torch.zeros(6)
@@ -112,11 +118,12 @@ class BaseManipEnv(DirectRLEnv):
         super().__init__(cfg, render_mode, **kwargs)
 
         # Move tensors to the device resolved by super().__init__()
-        self._ws_min          = self._ws_min.to(self.device)
-        self._ws_max          = self._ws_max.to(self.device)
-        self._hand_init_pos   = self._hand_init_pos.to(self.device)
-        self._bottle_init_pos = self._bottle_init_pos.to(self.device)
-        self._bowl_init_pos   = self._bowl_init_pos.to(self.device)
+        self._ws_min              = self._ws_min.to(self.device)
+        self._ws_max              = self._ws_max.to(self.device)
+        self._hand_init_pos       = self._hand_init_pos.to(self.device)
+        self._bottle_init_pos     = self._bottle_init_pos.to(self.device)
+        self._bowl_init_pos       = self._bowl_init_pos.to(self.device)
+        self._pc_center_init_pos  = self._pc_center_init_pos.to(self.device)
         self._obj_quat        = torch.tensor(_OBJ_QUAT_NP, dtype=torch.float32, device=self.device)
         self._actions         = torch.zeros(self.num_envs, cfg.action_space, device=self.device)
 
@@ -357,13 +364,51 @@ class BaseManipEnv(DirectRLEnv):
 
     # ── Point cloud ───────────────────────────────────────────────────────────
 
-    def _compute_pointcloud(self) -> torch.Tensor:
-        """Back-project depth image → world-frame point cloud.
+    @staticmethod
+    def _fps_torch(pts: torch.Tensor, n: int) -> torch.Tensor:
+        """Batched approximate Farthest Point Sampling.
+
+        Args:
+            pts: (B, N, 3) candidate points.
+            n:   number of output points.
+
+        Returns:
+            (B, n, 3) selected points.
+        """
+        B, N, _ = pts.shape
+        pool = min(N, 4096)
+        if N > pool:
+            ridx  = torch.randperm(N, device=pts.device)[:pool]
+            cands = pts[:, ridx]
+        else:
+            cands = pts
+            pool  = N
+
+        selected = torch.zeros(B, n, dtype=torch.long, device=pts.device)
+        dists    = torch.full((B, pool), float('inf'), device=pts.device)
+        idx      = torch.zeros(B, dtype=torch.long, device=pts.device)
+
+        for i in range(n):
+            selected[:, i] = idx
+            pt    = cands.gather(1, idx.view(B, 1, 1).expand(B, 1, 3))   # (B,1,3)
+            d     = ((cands - pt) ** 2).sum(-1)                           # (B,pool)
+            dists = torch.minimum(dists, d)
+            idx   = dists.argmax(dim=-1)                                   # (B,)
+
+        return cands.gather(1, selected.unsqueeze(-1).expand(B, n, 3))
+
+    def _compute_pointcloud(self) -> tuple:
+        """Back-project depth image → bottle-centric object and table point clouds.
+
+        Convention (matches video pipeline after gravity alignment + centering):
+          - Origin    = root_pos_w of bottle = bottom of bottle mesh (center_mesh sets Z_min=0)
+          - Object pts: z > 0.005 m in bottle-centric frame  (above table surface)
+          - Table pts : -0.06 < z < 0.005 m                  (at/near table surface)
 
         Returns
         -------
-        torch.Tensor
-            Shape (num_envs, n_pointcloud_points, 3), world-frame XYZ.
+        obj_pts   : (num_envs, n_pointcloud_points, 3)  bottle-centric, object region
+        table_pts : (num_envs, n_table_points, 3)        bottle-centric, table region
         """
         # depth: (N, H, W, 1) → squeeze to (N, H, W)
         depth = self.camera.data.output["depth"].squeeze(-1)
@@ -380,37 +425,158 @@ class BaseManipEnv(DirectRLEnv):
         u = torch.arange(W, device=self.device, dtype=torch.float32).view(1, 1, W)
         v = torch.arange(H, device=self.device, dtype=torch.float32).view(1, H, 1)
 
-        # Isaac Lab TiledCamera convention: X-forward (depth along +X_cam),
-        # Y-right (pixel u), Z-up (flip pixel v which goes downward).
-        x_cam =  depth                     # X = depth (forward)
-        y_cam =  (u - cx) / fx * depth    # Y = right (pixel u, no flip)
-        z_cam = -(v - cy) / fy * depth    # Z = up (flip pixel v)
+        # Isaac Lab TiledCamera convention matching replay.py/_make_combined_frame:
+        #   X = depth (forward), Y = -(u-cx)/fx*d (left, not right), Z = -(v-cy)/fy*d (up).
+        # Using the same sign convention as replay.py ensures sim points are
+        # in-distribution with the video pipeline point clouds.
+        x_cam =  depth
+        y_cam = -(u - cx) / fx * depth
+        z_cam = -(v - cy) / fy * depth
+
+        # ── Depth validity mask (matches replay.py: finite, >0, <3 m) ──────────
+        # Background/sky pixels have inf depth; without this filter they project
+        # to garbage world positions that dominate the sampling weights.
+        valid_mask = torch.isfinite(depth) & (depth > 0.01) & (depth < 3.0)  # (N, H, W)
+        valid_flat = valid_mask.reshape(N, H * W)                              # (N, H*W)
 
         # Stack → (N, H*W, 3) in camera frame
         pts_cam = torch.stack([x_cam, y_cam, z_cam], dim=-1).reshape(N, H * W, 3)
 
-        # Transform to world frame: p_world = R_cam @ p_cam + t_cam
-        # camera.data.pos_w:        (N, 3)
-        # camera.data.quat_w_world: (N, 4) — (x, y, z, w); matrix_from_quat expects (w, x, y, z)
-        quat_xyzw = self.camera.data.quat_w_world            # (N, 4) x,y,z,w
-        quat_wxyz = torch.cat([quat_xyzw[:, 3:], quat_xyzw[:, :3]], dim=-1)  # → w,x,y,z
-        R_cam = matrix_from_quat(quat_wxyz)                  # (N, 3, 3)
-        t_cam = self.camera.data.pos_w.unsqueeze(1)          # (N, 1, 3)
+        # Transform to world frame
+        # matrix_from_quat expects (x, y, z, w) — same format as quat_w_world
+        R_cam = matrix_from_quat(self.camera.data.quat_w_world)  # (N, 3, 3)
+        t_cam     = self.camera.data.pos_w.unsqueeze(1)      # (N, 1, 3)
         pts_world = pts_cam @ R_cam.transpose(-1, -2) + t_cam  # (N, H*W, 3)
 
-        # Sample n_pointcloud_points from table + object pixels only (exclude floor).
-        # Table surface is at world Z ≈ 0.40 m; floor is at Z = 0.
-        # Weight = 1 for points at/above table level, 0 for floor / below table.
-        n = self.cfg.n_pointcloud_points
-        table_z_thresh = 0.36   # world frame (m) — just below table bottom (table top ~0.40 m)
-        weights = (pts_world[:, :, 2] > table_z_thresh).float() + 1e-6  # (N, H*W)
-        idx = torch.multinomial(weights, n, replacement=True)            # (N, n)
-        pts = pts_world.gather(1, idx.unsqueeze(-1).expand(-1, -1, 3))  # (N, n, 3)
+        # Centre on the fixed initial position of the configured object.
+        # Using the initial position (not the live current position) keeps the
+        # point-cloud coordinate frame stable throughout the trajectory,
+        # matching the convention in the video pipeline (pc_data_gravity_aligned).
+        pc_center = self._pc_center_init_pos.view(1, 1, 3)   # (1, 1, 3) → broadcast
+        pts_cent  = pts_world - pc_center                      # (N, H*W, 3)
 
-        # Zero-center around the grasp object (bottle) position
-        bottle_pos = wp.to_torch(self.bottle.data.root_pos_w).unsqueeze(1)  # (N, 1, 3)
-        pts = pts - bottle_pos
-        return pts   # (N, n, 3) centred at bottle
+        GLOBAL_Z_MIN  = -0.10   # discard anything > 10 cm below table (noise/floor)
+        OBJECT_Z_MIN  =  0.005  # above table surface in centred frame
+        TABLE_Z_MIN   = -0.06   # just below table surface
+        n_obj         = self.cfg.n_pointcloud_points
+        n_table       = self.cfg.n_table_points
+        OBJECT_RADIUS =  0.20   # metres — sample only within this radius of each object
+
+        # Global floor filter applied once; all subsequent masks inherit it
+        in_scene   = valid_flat & (pts_cent[:, :, 2] > GLOBAL_Z_MIN)    # (N, H*W)
+        above_table = in_scene  & (pts_cent[:, :, 2] > OBJECT_Z_MIN)
+
+        def _sample_near(obj_pos_w: torch.Tensor) -> torch.Tensor:
+            """Sample n_obj pts within OBJECT_RADIUS of obj_pos_w.
+
+            obj_pos_w is the LIVE world position of the object (changes each step).
+            We subtract _pc_center_init_pos to express it in the same fixed centred
+            frame as pts_cent, then find nearby depth pixels.
+            """
+            obj_cent = (obj_pos_w - self._pc_center_init_pos).unsqueeze(1)  # (N,1,3)
+            dist2    = ((pts_cent - obj_cent) ** 2).sum(-1)                  # (N, H*W)
+            near     = above_table & (dist2 < OBJECT_RADIUS ** 2)
+            w        = near.float() + 1e-6
+            idx      = torch.multinomial(w, n_obj, replacement=True)
+            return pts_cent.gather(1, idx.unsqueeze(-1).expand(-1, -1, 3))   # (N, n_obj, 3)
+
+        # ── Grasp object (bottle) and target object (bowl) ────────────────────
+        # Both positions are live (update each step as objects move).
+        # Centering on _pc_center_init_pos keeps the coordinate frame stable.
+        bottle_pos_w = wp.to_torch(self.bottle.data.root_pos_w)  # (N, 3) live
+        bowl_pos_w   = wp.to_torch(self.bowl.data.root_pos_w)    # (N, 3) live
+        grasp_pts  = _sample_near(bottle_pos_w)
+        target_pts = _sample_near(bowl_pos_w)
+
+        # ── Table points: FPS over table-surface band ─────────────────────────
+        table_mask    = in_scene & (pts_cent[:, :, 2] > TABLE_Z_MIN) & (pts_cent[:, :, 2] < OBJECT_Z_MIN)
+        table_weights = table_mask.float() + 1e-6
+        pool          = min(pts_cent.shape[1], 4096)
+        cand_idx      = torch.multinomial(table_weights, pool, replacement=False)
+        table_cands   = pts_cent.gather(1, cand_idx.unsqueeze(-1).expand(-1, -1, 3))
+        table_pts     = self._fps_torch(table_cands, n_table)
+
+        # ── Optional debug frame saving ───────────────────────────────────────
+        if (self.cfg.debug_frame_dir
+                and self._debug_frames_saved < self.cfg.debug_frame_count):
+            rgb = self.camera.data.output["rgb"]
+            self._save_debug_frame(
+                rgb[0].cpu().numpy(),
+                pts_cent[0].cpu().numpy(),
+                grasp_pts[0].cpu().numpy(),
+                target_pts[0].cpu().numpy(),
+                table_pts[0].cpu().numpy(),
+            )
+
+        return grasp_pts, target_pts, table_pts  # (N,256,3), (N,256,3), (N,256,3)
+
+    def _save_debug_frame(self, rgb_np: np.ndarray,
+                          pts_cent_all: np.ndarray,
+                          grasp_pts: np.ndarray,
+                          target_pts: np.ndarray,
+                          table_pts: np.ndarray) -> None:
+        """Save a debug visualisation PNG: RGB + sampled point clouds.
+
+        Args:
+            rgb_np:       (H, W, 3/4) uint8 from the camera (first env only).
+            pts_cent_all: (H*W, 3) all back-projected points in centered frame.
+            grasp_pts:    (n_obj, 3)   grasp object (bottle) points.
+            target_pts:   (n_obj, 3)   target object (bowl) points.
+            table_pts:    (n_table, 3) table surface points.
+        """
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from pathlib import Path
+
+        out_dir = Path(self.cfg.debug_frame_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        fig = plt.figure(figsize=(18, 6), dpi=100)
+
+        # Left: RGB
+        ax_rgb = fig.add_subplot(1, 3, 1)
+        ax_rgb.imshow(rgb_np[..., :3])
+        ax_rgb.axis("off")
+        ax_rgb.set_title(f"RGB  (frame {self._debug_frames_saved})")
+
+        # Centre: all depth points coloured by Z
+        ax_all = fig.add_subplot(1, 3, 2, projection="3d")
+        # subsample for speed
+        n_show = min(len(pts_cent_all), 4000)
+        idx    = np.random.choice(len(pts_cent_all), n_show, replace=False)
+        p      = pts_cent_all[idx]
+        valid  = np.isfinite(p).all(axis=1) & (np.abs(p) < 5.0).all(axis=1)
+        p      = p[valid]
+        if len(p) > 0:
+            # clip to ±3 m from center to exclude any residual outliers
+            valid = (np.abs(p) < 3.0).all(axis=1)
+            p = p[valid]
+        if len(p) > 0:
+            z_norm = (p[:, 2] - p[:, 2].min()) / (p[:, 2].max() - p[:, 2].min() + 1e-6)
+            ax_all.scatter(p[:, 0], p[:, 1], p[:, 2], c=z_norm, cmap="viridis", s=1, alpha=0.4)
+        ax_all.set_xlabel("X"); ax_all.set_ylabel("Y"); ax_all.set_zlabel("Z")
+        center_name = self.cfg.pointcloud_center
+        ax_all.set_title(f"All depth pts ({center_name}-centred)")
+
+        # Right: sampled per-object + table points
+        ax_pts = fig.add_subplot(1, 3, 3, projection="3d")
+        ax_pts.scatter(grasp_pts[:, 0],  grasp_pts[:, 1],  grasp_pts[:, 2],
+                       c="dodgerblue", s=4, alpha=0.8, label=f"grasp  ({len(grasp_pts)})")
+        ax_pts.scatter(target_pts[:, 0], target_pts[:, 1], target_pts[:, 2],
+                       c="tomato",     s=4, alpha=0.8, label=f"target ({len(target_pts)})")
+        ax_pts.scatter(table_pts[:, 0],  table_pts[:, 1],  table_pts[:, 2],
+                       c="orange",     s=4, alpha=0.5, label=f"table  ({len(table_pts)})")
+        ax_pts.legend(fontsize=8)
+        ax_pts.set_xlabel("X"); ax_pts.set_ylabel("Y"); ax_pts.set_zlabel("Z")
+        ax_pts.set_title(f"Sampled obs pts ({center_name}-centred)")
+
+        plt.tight_layout()
+        out_path = out_dir / f"obs_frame_{self._debug_frames_saved:04d}.png"
+        plt.savefig(str(out_path))
+        plt.close(fig)
+        print(f"[BaseManipEnv] Saved debug frame → {out_path}")
+        self._debug_frames_saved += 1
 
     # ── Step ──────────────────────────────────────────────────────────────────
 
@@ -444,29 +610,35 @@ class BaseManipEnv(DirectRLEnv):
     # ── Observations ──────────────────────────────────────────────────────────
 
     def _get_observations(self) -> dict:
-        # Convert Warp arrays → Torch tensors
-        bot_pos   = wp.to_torch(self.bottle.data.root_pos_w)   # (N, 3) — origin for centering
-        bot_quat  = wp.to_torch(self.bottle.data.root_quat_w)
-        hand_pos  = wp.to_torch(self.robot.data.root_pos_w) - bot_pos   # zero-centred
+        # All positions centred on the fixed initial position of the pointcloud_center
+        # object — same frame as the point cloud observation.
+        pc_center = self._pc_center_init_pos   # (3,) fixed
+        hand_pos  = wp.to_torch(self.robot.data.root_pos_w)  - pc_center  # (N, 3)
         hand_quat = wp.to_torch(self.robot.data.root_quat_w)
         joint_pos = wp.to_torch(self.robot.data.joint_pos)
-        bowl_pos  = wp.to_torch(self.bowl.data.root_pos_w)  - bot_pos   # zero-centred
+        bot_pos   = wp.to_torch(self.bottle.data.root_pos_w) - pc_center  # (N, 3) live
+        bot_quat  = wp.to_torch(self.bottle.data.root_quat_w)
+        bowl_pos  = wp.to_torch(self.bowl.data.root_pos_w)   - pc_center  # (N, 3) live
 
-        # bottle pos is always (0,0,0) in the centred frame; keep quat for orientation
         state_obs = torch.cat([
-            hand_pos,                        # (N, 3) relative to bottle
-            hand_quat,                       # (N, 4)
-            joint_pos,                       # (N, num_joints)
-            torch.zeros_like(bot_pos),       # (N, 3) bottle pos = origin
-            bot_quat,                        # (N, 4)
-            bowl_pos,                        # (N, 3) relative to bottle
+            hand_pos,   # (N, 3)
+            hand_quat,  # (N, 4)
+            joint_pos,  # (N, num_joints)
+            bot_pos,    # (N, 3) live bottle pos in fixed centred frame
+            bot_quat,   # (N, 4)
+            bowl_pos,   # (N, 3) live bowl pos in fixed centred frame
         ], dim=-1)
 
         if self.cfg.use_camera and self.camera is not None:
             rgb = self.camera.data.output["rgb"]               # (N, H, W, 3/4) uint8
             if self.cfg.use_robometer and self._rbm_frame_buf is not None:
                 self._rbm_push_frame(rgb)
-            cloud_obs = self._compute_pointcloud().reshape(self.num_envs, -1)
+            grasp_pts, target_pts, table_pts = self._compute_pointcloud()
+            cloud_obs = torch.cat([
+                grasp_pts.reshape(self.num_envs, -1),   # (N, 256*3)
+                target_pts.reshape(self.num_envs, -1),  # (N, 256*3)
+                table_pts.reshape(self.num_envs, -1),   # (N, 256*3)
+            ], dim=-1)
             return {"policy": torch.cat([state_obs, cloud_obs], dim=-1),
                     "rgb":   rgb,
                     "depth": self.camera.data.output["depth"]}  # (N, H, W, 1) float

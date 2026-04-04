@@ -1,0 +1,42 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "root"
+    doc = """Generated from Composed Stage of root layer /tmp/tmp7gzv8fgb/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/usdex/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/temp/coacd_decomposed_object_one_link.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/coacd_decomposed_object_one_link/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "root"
+{
+    over "Geometry"
+    {
+        over "link_original" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            bool newton:selfCollisionEnabled = 0
+            point3f physics:centerOfMass = (0, 0, 0)
+            float3 physics:diagonalInertia = (0.00021599888, 0.0011999306, 0.0012000706)
+            quatf physics:principalAxes = (0.6534185, -0.2693357, 0.6539777, -0.26984388)
+        }
+    }
+
+    over "Physics"
+    {
+    }
+}
+

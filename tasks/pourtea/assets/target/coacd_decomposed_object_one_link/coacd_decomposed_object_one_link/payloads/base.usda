@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "root"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpule3rjm5/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/usdex/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/temp/coacd_decomposed_object_one_link.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/coacd_decomposed_object_one_link/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./robot.usda@
+    ]
+    upAxis = "Z"
+)
+
+def Xform "root" (
+    prepend apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "root"
+    }
+    kind = "component"
+)
+{
+    float3[] extentsHint = [(-0.08657886, -0.08653323, 0), (0.08656826, 0.08655621, 0.07001865), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.08750188, -0.08745485, -0.00079542), (0.08750309, 0.08745695, 0.07070486)]
+
+    def Scope "Materials"
+    {
+    }
+
+    def Scope "Geometry"
+    {
+        def Xform "link_original"
+        {
+            # Simple capsule collision for reliable GPU-PhysX contact.
+            def Capsule "collision_capsule" (
+                prepend apiSchemas = ["PhysicsCollisionAPI", "PhysxCollisionAPI"]
+            )
+            {
+                double radius = 0.096253
+                double height = 0.000000
+                uniform token axis = "Z"
+                uniform token purpose = "guide"
+                double3 xformOp:translate = (0.0, 0.0, 0.096253)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+            }
+
+            def Xform "frame_000000_object_mesh_target_centered" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/frame_000000_object_mesh_target_centered>
+            )
+            {
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "coacd_allinone" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/geometry_53>
+            )
+            {
+                uniform token purpose = "guide"
+            }
+        }
+    }
+
+    def Scope "Physics"
+    {
+    }
+
+    def Scope "VisualMaterials"
+    {
+    }
+}
+

@@ -19,16 +19,25 @@ from isaaclab.app import AppLauncher
 _CAMERA_KIT = str(Path(__file__).parent / "camera_headless.kit")
 
 parser = argparse.ArgumentParser(description="Replay recorded qpos in Isaac Sim")
-parser.add_argument("--pc_data", type=str,
-                    default="../output/calibrated_pourtea/pc_data_gravity_aligned.npy")
-parser.add_argument("--output",  type=str,
-                    default="../output/calibrated_pourtea/replay.mp4")
+parser.add_argument("--task",    type=str,   default="pourtea",
+                    help="Task name (subdirectory under tasks/); also sets default pc_data/output paths")
+parser.add_argument("--pc_data", type=str,   default=None,
+                    help="Path to pc_data_gravity_aligned.npy (default: ../output/<task>/pc_data_gravity_aligned.npy)")
+parser.add_argument("--output",  type=str,   default=None,
+                    help="Output video path (default: ../output/<task>/replay.mp4)")
 parser.add_argument("--fps",     type=int,   default=30,
                     help="Output video frame rate")
 parser.add_argument("--settle",  type=int,   default=30,
                     help="Physics steps to run before replay starts")
 AppLauncher.add_app_launcher_args(parser)
 args = parser.parse_args()
+
+# Derive paths from task name if not specified
+if args.pc_data is None:
+    args.pc_data = f"../output/{args.task}/pc_data_gravity_aligned.npy"
+if args.output is None:
+    args.output  = f"../output/{args.task}/replay.mp4"
+
 args.experience      = _CAMERA_KIT
 args.enable_cameras  = True
 args.headless        = True
@@ -37,6 +46,7 @@ launcher       = AppLauncher(args)
 simulation_app = launcher.app
 
 # ── Post-launch imports ───────────────────────────────────────────────────────
+import importlib
 import numpy as np
 import torch
 import warp as wp
@@ -46,12 +56,16 @@ import pdb
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import tasks.grasp_and_place  # noqa: F401  register gym env
-from tasks.grasp_and_place.env     import GraspAndPlaceEnv
-from tasks.grasp_and_place.env_cfg import GraspAndPlaceEnvCfg
+
+# Dynamically import and register the task module
+importlib.import_module(f"tasks.{args.task}")           # registers gym env
+env_mod  = importlib.import_module(f"tasks.{args.task}.env")
+cfg_mod  = importlib.import_module(f"tasks.{args.task}.env_cfg")
+TaskEnv    = env_mod.TaskEnv
+TaskEnvCfg = cfg_mod.TaskEnvCfg
 
 # ── Load trajectory ───────────────────────────────────────────────────────────
-print(f"[Replay] Loading {args.pc_data}")
+print(f"[Replay] task={args.task}  Loading {args.pc_data}")
 data = np.load(args.pc_data, allow_pickle=True).item()
 
 robot_qpos = data['robot_qpos']           # {frame_idx: (18,) float32}
@@ -59,7 +73,7 @@ frames     = sorted(robot_qpos.keys())
 print(f"[Replay] {len(frames)} frames  (indices {frames[0]}–{frames[-1]})")
 
 # ── Create env ────────────────────────────────────────────────────────────────
-env_cfg = GraspAndPlaceEnvCfg()
+env_cfg = TaskEnvCfg()
 env_cfg.scene.num_envs  = 1
 env_cfg.use_camera      = True
 env_cfg.observation_space = 29 + 256 * 3
@@ -67,7 +81,7 @@ env_cfg.observation_space = 29 + 256 * 3
 env_cfg.camera_pos = (0.0, 1.0, 0.9)
 env_cfg.camera_rot = (0.0, 0.5605, 0.8284, 0.0)  # (x,y,z,w)
 
-env = GraspAndPlaceEnv(cfg=env_cfg, render_mode=None)
+env = TaskEnv(cfg=env_cfg, render_mode=None)
 device = env.device
 
 # Resolve actuated-joint indices (same as training)

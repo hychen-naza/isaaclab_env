@@ -1,0 +1,58 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "root"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpule3rjm5/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/usdex/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/temp/coacd_decomposed_object_one_link.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/target/coacd_decomposed_object_one_link/coacd_decomposed_object_one_link/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./physics.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "root"
+{
+    over "Geometry"
+    {
+        over "link_original"
+        {
+
+            over "frame_000000_object_mesh_target_centered"
+            {
+            }
+
+            over "coacd_allinone"
+            {
+            }
+        }
+    }
+
+    over "Physics"
+    {
+        over "root_joint"
+        {
+        }
+    }
+
+    over "Materials"
+    {
+    }
+
+    over "VisualMaterials"
+    {
+    }
+}
+

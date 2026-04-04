@@ -1,0 +1,155 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    doc = """Generated from Composed Stage of root layer /tmp/tmp7gzv8fgb/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/usdex/root.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/temp/coacd_decomposed_object_one_link.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/tasks/pourtea/assets/grasp/coacd_decomposed_object_one_link/coacd_decomposed_object_one_link/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "Instances"
+{
+    def Xform "frame_000000_object_mesh_grasp_centered" (
+        prepend references = @./geometries.usd@</Geometries/frame_000000_object_mesh_grasp_centered>
+    )
+    {
+        over "frame_000000_object_mesh_grasp_centered" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/frame_000000_object_mesh_grasp_centered/VisualMaterials/material_0>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_0" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_0>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "geometry_0" (
+        prepend references = @./geometries.usd@</Geometries/geometry_0>
+    )
+    {
+        over "geometry_0" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_1" (
+        prepend references = @./geometries.usd@</Geometries/geometry_1>
+    )
+    {
+        over "geometry_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_2" (
+        prepend references = @./geometries.usd@</Geometries/geometry_2>
+    )
+    {
+        over "geometry_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_3" (
+        prepend references = @./geometries.usd@</Geometries/geometry_3>
+    )
+    {
+        over "geometry_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_4" (
+        prepend references = @./geometries.usd@</Geometries/geometry_4>
+    )
+    {
+        over "geometry_4" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_5" (
+        prepend references = @./geometries.usd@</Geometries/geometry_5>
+    )
+    {
+        over "geometry_5" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_6" (
+        prepend references = @./geometries.usd@</Geometries/geometry_6>
+    )
+    {
+        over "geometry_6" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_7" (
+        prepend references = @./geometries.usd@</Geometries/geometry_7>
+    )
+    {
+        over "geometry_7" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+
+    def Xform "geometry_8" (
+        prepend references = @./geometries.usd@</Geometries/geometry_8>
+    )
+    {
+        over "geometry_8" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+        }
+    }
+}
+

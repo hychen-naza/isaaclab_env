@@ -90,12 +90,12 @@ class BaseManipEnv(DirectRLEnv):
         self._ws_min = torch.tensor(cfg.workspace_min, device="cpu")
         self._ws_max = torch.tensor(cfg.workspace_max, device="cpu")
         self._hand_init_pos   = torch.tensor(cfg.hand_init_pos,   device="cpu")
-        self._bottle_init_pos = torch.tensor(cfg.bottle_init_pos, device="cpu")
-        self._bowl_init_pos   = torch.tensor(cfg.bowl_init_pos,   device="cpu")
+        self._grasp_object_init_pos = torch.tensor(cfg.grasp_object_init_pos, device="cpu")
+        self._target_object_init_pos   = torch.tensor(cfg.target_object_init_pos,   device="cpu")
 
         # Fixed point-cloud centering origin: frozen at the configured object's
         # initial position so the frame is stable even as the object moves.
-        _center_src = cfg.bowl_init_pos if cfg.pointcloud_center == "bowl" else cfg.bottle_init_pos
+        _center_src = cfg.target_object_init_pos if cfg.pointcloud_center == "target_object" else cfg.grasp_object_init_pos
         self._pc_center_init_pos = torch.tensor(_center_src, dtype=torch.float32, device="cpu")
         self._debug_frames_saved = 0   # counter — incremented in _save_debug_frame
 
@@ -121,8 +121,8 @@ class BaseManipEnv(DirectRLEnv):
         self._ws_min              = self._ws_min.to(self.device)
         self._ws_max              = self._ws_max.to(self.device)
         self._hand_init_pos       = self._hand_init_pos.to(self.device)
-        self._bottle_init_pos     = self._bottle_init_pos.to(self.device)
-        self._bowl_init_pos       = self._bowl_init_pos.to(self.device)
+        self._grasp_object_init_pos     = self._grasp_object_init_pos.to(self.device)
+        self._target_object_init_pos       = self._target_object_init_pos.to(self.device)
         self._pc_center_init_pos  = self._pc_center_init_pos.to(self.device)
         self._obj_quat        = torch.tensor(_OBJ_QUAT_NP, dtype=torch.float32, device=self.device)
         self._actions         = torch.zeros(self.num_envs, cfg.action_space, device=self.device)
@@ -147,8 +147,8 @@ class BaseManipEnv(DirectRLEnv):
     def _setup_scene(self) -> None:
         # 1. Convert URDFs → USD (cached after first run)
         ensure_hand_usd(fix_base=False)
-        bottle_usd = _ensure_obj_usd(self.cfg.bottle_urdf)
-        bowl_usd   = _ensure_obj_usd(self.cfg.bowl_urdf)
+        grasp_object_usd = _ensure_obj_usd(self.cfg.grasp_object_urdf)
+        target_object_usd = _ensure_obj_usd(self.cfg.target_object_urdf)
 
         # Env prim prefix — matches the cartpole direct-rl example pattern.
         # InteractiveScene creates /World/envs/env_0, env_1, … for each env.
@@ -162,18 +162,18 @@ class BaseManipEnv(DirectRLEnv):
         ))
 
         # 3. Bottle — dynamic rigid body
-        self.bottle = RigidObject(cfg=_make_obj_cfg(
-            prim_path=f"{_NS}/Bottle",
-            usd_path=bottle_usd,
-            init_pos=self.cfg.bottle_init_pos,
+        self.grasp_object = RigidObject(cfg=_make_obj_cfg(
+            prim_path=f"{_NS}/GraspObject",
+            usd_path=grasp_object_usd,
+            init_pos=self.cfg.grasp_object_init_pos,
             kinematic=False,
         ))
 
         # 4. Bowl — dynamic rigid body (gravity-affected, not glued)
-        self.bowl = RigidObject(cfg=_make_obj_cfg(
-            prim_path=f"{_NS}/Bowl",
-            usd_path=bowl_usd,
-            init_pos=self.cfg.bowl_init_pos,
+        self.target_object = RigidObject(cfg=_make_obj_cfg(
+            prim_path=f"{_NS}/TargetObject",
+            usd_path=target_object_usd,
+            init_pos=self.cfg.target_object_init_pos,
             kinematic=False,
         ))
 
@@ -210,7 +210,7 @@ class BaseManipEnv(DirectRLEnv):
             self.camera = None
 
         # 7. Ground plane and lighting (/World level, not per-env)
-        spawn_ground_plane("/World/GroundPlane", GroundPlaneCfg())
+        spawn_ground_plane("/World/GroundPlane", GroundPlaneCfg(physics_material=None, color=None))
         sim_utils.DomeLightCfg(intensity=2000.0, color=(0.8, 0.8, 0.8)).func(
             "/World/DomeLight",
             sim_utils.DomeLightCfg(intensity=2000.0, color=(0.8, 0.8, 0.8)),
@@ -218,8 +218,8 @@ class BaseManipEnv(DirectRLEnv):
 
         # 8. Register all scene entities
         self.scene.articulations["robot"]  = self.robot
-        self.scene.rigid_objects["bottle"] = self.bottle
-        self.scene.rigid_objects["bowl"]   = self.bowl
+        self.scene.rigid_objects["grasp_object"] = self.grasp_object
+        self.scene.rigid_objects["target_object"]   = self.target_object
         if self.camera is not None:
             self.scene.sensors["camera"]   = self.camera
 
@@ -483,10 +483,10 @@ class BaseManipEnv(DirectRLEnv):
         # ── Grasp object (bottle) and target object (bowl) ────────────────────
         # Both positions are live (update each step as objects move).
         # Centering on _pc_center_init_pos keeps the coordinate frame stable.
-        bottle_pos_w = wp.to_torch(self.bottle.data.root_pos_w)  # (N, 3) live
-        bowl_pos_w   = wp.to_torch(self.bowl.data.root_pos_w)    # (N, 3) live
-        grasp_pts  = _sample_near(bottle_pos_w)
-        target_pts = _sample_near(bowl_pos_w)
+        grasp_object_pos_w = wp.to_torch(self.grasp_object.data.root_pos_w)  # (N, 3) live
+        target_object_pos_w   = wp.to_torch(self.target_object.data.root_pos_w)    # (N, 3) live
+        grasp_pts  = _sample_near(grasp_object_pos_w)
+        target_pts = _sample_near(target_object_pos_w)
 
         # ── Table points: FPS over table-surface band ─────────────────────────
         table_mask    = in_scene & (pts_cent[:, :, 2] > TABLE_Z_MIN) & (pts_cent[:, :, 2] < OBJECT_Z_MIN)
@@ -616,9 +616,9 @@ class BaseManipEnv(DirectRLEnv):
         hand_pos  = wp.to_torch(self.robot.data.root_pos_w)  - pc_center  # (N, 3)
         hand_quat = wp.to_torch(self.robot.data.root_quat_w)
         joint_pos = wp.to_torch(self.robot.data.joint_pos)
-        bot_pos   = wp.to_torch(self.bottle.data.root_pos_w) - pc_center  # (N, 3) live
-        bot_quat  = wp.to_torch(self.bottle.data.root_quat_w)
-        bowl_pos  = wp.to_torch(self.bowl.data.root_pos_w)   - pc_center  # (N, 3) live
+        bot_pos   = wp.to_torch(self.grasp_object.data.root_pos_w) - pc_center  # (N, 3) live
+        bot_quat  = wp.to_torch(self.grasp_object.data.root_quat_w)
+        bowl_pos  = wp.to_torch(self.target_object.data.root_pos_w)   - pc_center  # (N, 3) live
 
         state_obs = torch.cat([
             hand_pos,   # (N, 3)
@@ -648,7 +648,7 @@ class BaseManipEnv(DirectRLEnv):
 
     def _get_rewards(self) -> torch.Tensor:
         dist = torch.norm(
-            wp.to_torch(self.bottle.data.root_pos_w) - wp.to_torch(self.bowl.data.root_pos_w), dim=-1
+            wp.to_torch(self.grasp_object.data.root_pos_w) - wp.to_torch(self.target_object.data.root_pos_w), dim=-1
         )
         sparse = torch.where(
             dist < self.cfg.success_dist,
@@ -670,7 +670,7 @@ class BaseManipEnv(DirectRLEnv):
 
     def _get_dones(self) -> tuple[torch.Tensor, torch.Tensor]:
         dist = torch.norm(
-            wp.to_torch(self.bottle.data.root_pos_w) - wp.to_torch(self.bowl.data.root_pos_w), dim=-1
+            wp.to_torch(self.grasp_object.data.root_pos_w) - wp.to_torch(self.target_object.data.root_pos_w), dim=-1
         )
         terminated = dist < self.cfg.success_dist
         truncated  = self.episode_length_buf >= self.max_episode_length
@@ -707,15 +707,15 @@ class BaseManipEnv(DirectRLEnv):
         )
 
         # Bottle
-        bottle_state = torch.zeros(n, 13, device=self.device)
-        bottle_state[:, :3]  = self._bottle_init_pos
-        bottle_state[:, 3:7] = self._obj_quat
-        self.bottle.write_root_pose_to_sim(bottle_state[:, :7], env_ids=env_ids)
-        self.bottle.write_root_velocity_to_sim(bottle_state[:, 7:], env_ids=env_ids)
+        grasp_object_state = torch.zeros(n, 13, device=self.device)
+        grasp_object_state[:, :3]  = self._grasp_object_init_pos
+        grasp_object_state[:, 3:7] = self._obj_quat
+        self.grasp_object.write_root_pose_to_sim(grasp_object_state[:, :7], env_ids=env_ids)
+        self.grasp_object.write_root_velocity_to_sim(grasp_object_state[:, 7:], env_ids=env_ids)
 
         # Bowl — dynamic, reset to its init pose with zero velocity
-        bowl_state = torch.zeros(n, 13, device=self.device)
-        bowl_state[:, :3]  = self._bowl_init_pos
-        bowl_state[:, 3:7] = self._obj_quat
-        self.bowl.write_root_pose_to_sim(bowl_state[:, :7], env_ids=env_ids)
-        self.bowl.write_root_velocity_to_sim(bowl_state[:, 7:], env_ids=env_ids)
+        target_object_state = torch.zeros(n, 13, device=self.device)
+        target_object_state[:, :3]  = self._target_object_init_pos
+        target_object_state[:, 3:7] = self._obj_quat
+        self.target_object.write_root_pose_to_sim(target_object_state[:, :7], env_ids=env_ids)
+        self.target_object.write_root_velocity_to_sim(target_object_state[:, 7:], env_ids=env_ids)

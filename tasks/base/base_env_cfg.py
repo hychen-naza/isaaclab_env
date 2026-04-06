@@ -1,8 +1,8 @@
 """Base configuration for tabletop manipulation environments with the Inspire hand.
 
 Subclasses MUST override the task-specific fields marked below:
-  - bottle_urdf, bowl_urdf   (asset URDF paths)
-  - bottle_init_pos, bowl_init_pos  (initial object positions)
+  - grasp_object_urdf, target_object_urdf   (asset URDF paths)
+  - grasp_object_init_pos, target_object_init_pos  (initial object positions)
   - robometer_task           (task description string for the VLM reward model)
 """
 from __future__ import annotations
@@ -17,9 +17,9 @@ from isaaclab.utils import configclass
 #   hand_root_pos    (3)
 #   hand_root_quat   (4)
 #   hand_joint_pos   (12)   ← 6 actuated + 6 mimic joints
-#   bottle_pos       (3)
-#   bottle_quat      (4)
-#   bowl_pos         (3)
+#   grasp_object_pos  (3)
+#   grasp_object_quat (4)
+#   target_object_pos (3)
 #   [point_cloud     (N_PTS × 3)   ← only when use_camera=True]
 #
 # Update OBS_JOINT_DIM if mimic joints are collapsed by PhysX (check at runtime).
@@ -55,7 +55,7 @@ class BaseManipEnvCfg(DirectRLEnvCfg):
     episode_length_s: float = 10.0
 
     # ── Reward ────────────────────────────────────────────────────────────────
-    success_dist: float  = 0.08    # metres — bottle centre within this of bowl centre
+    success_dist: float  = 0.08    # metres — grasp_object centre within this of target_object centre
     sparse_reward: float = 100.0
 
     # ── Hand ──────────────────────────────────────────────────────────────────
@@ -99,10 +99,10 @@ class BaseManipEnvCfg(DirectRLEnvCfg):
 
     # ── Point-cloud centering ─────────────────────────────────────────────────
     # Which object's fixed initial position to use as the point-cloud origin.
-    # "bottle" = grasp target (default), "bowl" = goal object.
+    # "grasp_object" = grasp target (default), "target_object" = goal object.
     # The center is frozen at the initial position so the coordinate frame stays
     # stable even as the object moves during a trajectory.
-    pointcloud_center: str      = "bottle"
+    pointcloud_center: str      = "grasp_object"
 
     # ── Debug frame saving ────────────────────────────────────────────────────
     # Set debug_frame_dir to a directory path to save RGB + point-cloud
@@ -112,10 +112,10 @@ class BaseManipEnvCfg(DirectRLEnvCfg):
 
     # ── Task-specific fields — subclasses MUST override ───────────────────────
     # Asset URDF paths (task-specific objects).
-    bottle_urdf: str = ""
-    bowl_urdf:   str = ""
+    grasp_object_urdf: str = ""
+    target_object_urdf:   str = ""
     # Initial world-frame positions; z set so object bottom rests on table top (z≈0.40 m).
-    bottle_init_pos: tuple = (0.0, 0.0, 0.0)
-    bowl_init_pos:   tuple = (0.0, 0.0, 0.0)
+    grasp_object_init_pos: tuple = (0.0, 0.0, 0.0)
+    target_object_init_pos:   tuple = (0.0, 0.0, 0.0)
     # Natural-language task description for the Robometer VLM reward model.
     robometer_task: str = ""

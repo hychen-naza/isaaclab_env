@@ -50,7 +50,7 @@ POSITIONS_JSON="$(realpath "$POSITIONS_JSON")"
 # Resolve key directories from the script's own location
 OBJ_UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # …/isaacsim_scene/obj_utils
 ISAACSIM_DIR="$(cd "$OBJ_UTILS_DIR/.." && pwd)"                  # …/isaacsim_scene
-SCALEVIDEOMANIP_DIR="$(cd "$ISAACSIM_DIR/.." && pwd)"            # …/scalevideomanip
+SCALEVIDEOMANIP_DIR="$ISAACSIM_DIR"            # …/scalevideomanip
 
 # Derive task name from the grasp_mesh path if not given
 if [[ -z "$TASK_NAME" ]]; then
@@ -140,10 +140,10 @@ CLEARANCE   = 0.005  # 5 mm gap between mesh bottom and table surface
 # The URDF link origin is at the mesh bottom (z=0 after center_mesh).
 # So z_init = TABLE_TOP_Z + CLEARANCE places the bottom just above the table.
 # We do NOT add mesh height here — that would float the object above the table.
-bottle_z = TABLE_TOP_Z + CLEARANCE
-bowl_z   = TABLE_TOP_Z + CLEARANCE
-print(f"  bottle init_z = {bottle_z:.4f} m")
-print(f"  bowl   init_z = {bowl_z:.4f} m")
+grasp_object_z = TABLE_TOP_Z + CLEARANCE
+target_object_z = TABLE_TOP_Z + CLEARANCE
+print(f"  grasp_object init_z = {grasp_object_z:.4f} m")
+print(f"  target_object init_z = {target_object_z:.4f} m")
 
 with open("$POSITIONS_JSON") as f:
     pos = json.load(f)
@@ -151,12 +151,12 @@ labels       = list(pos.keys())
 grasp_label  = labels[0]
 target_label = labels[1] if len(labels) > 1 else None
 
-bowl_x = pos[target_label]["table_x"] if target_label else 0.0
-bowl_y = pos[target_label]["table_y"] if target_label else 0.0
-print(f"  bowl table offset: x={bowl_x:+.3f}  y={bowl_y:+.3f} m  (rel to '{grasp_label}')")
+target_object_x = pos[target_label]["table_x"] if target_label else 0.0
+target_object_y = pos[target_label]["table_y"] if target_label else 0.0
+print(f"  target_object table offset: x={target_object_x:+.3f}  y={target_object_y:+.3f} m  (rel to '{grasp_label}')")
 
 # Write to grasp_and_place/env_cfg.py (base class); task env_cfg inherits from it.
-cfg_path = "$ISAACSIM_DIR/tasks/grasp_and_place/env_cfg.py"
+cfg_path = "$ISAACSIM_DIR/tasks/$TASK_DIR/env_cfg.py"
 text     = open(cfg_path).read()
 
 def replace_pos(text, var, new_tuple):
@@ -167,10 +167,10 @@ def replace_pos(text, var, new_tuple):
         print(f"  WARNING: could not find {var} in env_cfg.py", file=sys.stderr)
     return result
 
-text = replace_pos(text, "bottle_init_pos",
-                   (round(float(0.0),    4), round(float(0.0),    4), round(float(bottle_z), 4)))
-text = replace_pos(text, "bowl_init_pos",
-                   (round(float(bowl_x), 4), round(float(bowl_y), 4), round(float(bowl_z),   4)))
+text = replace_pos(text, "grasp_object_init_pos",
+                   (round(float(0.0),    4), round(float(0.0),    4), round(float(grasp_object_z), 4)))
+text = replace_pos(text, "target_object_init_pos",
+                   (round(float(target_object_x), 4), round(float(target_object_y), 4), round(float(target_object_z),   4)))
 
 open(cfg_path, "w").write(text)
 print(f"  env_cfg.py updated: {cfg_path}")

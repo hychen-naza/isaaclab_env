@@ -71,11 +71,11 @@ env = TaskEnv(cfg=env_cfg, render_mode="human" if args.gui else None)
 obs, _ = env.reset()
 
 # Print positions immediately after reset (step 0) for height debugging
-bottle_pos_0 = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
-bowl_pos_0   = wp.to_torch(env.bowl.data.root_pos_w)[0].cpu().numpy()
+grasp_object_pos_0  = wp.to_torch(env.grasp_object.data.root_pos_w)[0].cpu().numpy()
+target_object_pos_0 = wp.to_torch(env.target_object.data.root_pos_w)[0].cpu().numpy()
 print(f"\nScene state at step 0 (after reset, before physics):")
-print(f"  Bottle : {bottle_pos_0}  (cfg init_pos z={env_cfg.bottle_init_pos[2]:.4f})")
-print(f"  Bowl   : {bowl_pos_0}  (cfg init_pos z={env_cfg.bowl_init_pos[2]:.4f})")
+print(f"  Grasp object  : {grasp_object_pos_0}  (cfg init_pos z={env_cfg.grasp_object_init_pos[2]:.4f})")
+print(f"  Target object : {target_object_pos_0}  (cfg init_pos z={env_cfg.target_object_init_pos[2]:.4f})")
 print(f"  Table top z = 0.40 m")
 
 zero_actions = torch.zeros(1, env_cfg.action_space, device=env.device)
@@ -85,17 +85,16 @@ for _ in range(args.steps):
 # ── Optional robot-action test ─────────────────────────────────────────────
 if args.test_actions:
     hand_before = wp.to_torch(env.robot.data.root_pos_w)[0].cpu().numpy().copy()
-    # Move hand: +Y (toward bottle), +Z (lift), close fingers slightly
     test_act = torch.zeros(1, env_cfg.action_space, device=env.device)
     test_act[0, 0] =  0.0   # dx
-    test_act[0, 1] =  1.0   # dy — toward bottle (hand starts at y=-0.15)
+    test_act[0, 1] =  1.0   # dy — toward grasp object (hand starts at y=-0.15)
     test_act[0, 2] =  0.5   # dz — lift
     test_act[0, 3:] = 0.5   # finger targets (half-closed)
     N_TEST = 30
     for _ in range(N_TEST):
         obs, *_ = env.step(test_act)
     hand_after = wp.to_torch(env.robot.data.root_pos_w)[0].cpu().numpy()
-    with open("/tmp/vis_action_test.txt", "w") as _f:
+    with open("/home/runze/isaaclab_env/vis_action_test.txt", "w") as _f:
         _f.write(f"[test_actions] Hand before {N_TEST} steps: {hand_before}\n")
         _f.write(f"[test_actions] Hand after  {N_TEST} steps: {hand_after}\n")
         delta = hand_after - hand_before
@@ -103,14 +102,14 @@ if args.test_actions:
         _f.write(f"[test_actions] Robot MOVES: {abs(delta).max() > 0.001}\n")
 
 # Object / hand world positions (Warp arrays → Torch → NumPy)
-bottle_pos = wp.to_torch(env.bottle.data.root_pos_w)[0].cpu().numpy()
-bowl_pos   = wp.to_torch(env.bowl.data.root_pos_w)[0].cpu().numpy()
-hand_pos   = wp.to_torch(env.robot.data.root_pos_w)[0].cpu().numpy()
+grasp_object_pos  = wp.to_torch(env.grasp_object.data.root_pos_w)[0].cpu().numpy()
+target_object_pos = wp.to_torch(env.target_object.data.root_pos_w)[0].cpu().numpy()
+hand_pos          = wp.to_torch(env.robot.data.root_pos_w)[0].cpu().numpy()
 
-with open("/tmp/vis_positions.txt", "w") as _f:
-    _f.write(f"Bottle : {bottle_pos}\n")
-    _f.write(f"Bowl   : {bowl_pos}\n")
-    _f.write(f"Hand   : {hand_pos}\n")
+with open("/home/runze/isaaclab_env/vis_positions.txt", "w") as _f:
+    _f.write(f"Grasp object  : {grasp_object_pos}\n")
+    _f.write(f"Target object : {target_object_pos}\n")
+    _f.write(f"Hand          : {hand_pos}\n")
 
 # ── Output directory ──────────────────────────────────────────────────────────
 out_dir = Path("vis") / args.task
@@ -146,9 +145,9 @@ if env.camera is not None:
     # Point cloud — use env._compute_pointcloud() directly (same as RL observation)
     import torch
     grasp_pts_t, target_pts_t, table_pts_t = env._compute_pointcloud()
-    grasp_np  = grasp_pts_t[0].cpu().numpy()   # (256, 3) bottle-centric
-    target_np = target_pts_t[0].cpu().numpy()  # (256, 3) bottle-centric
-    table_np  = table_pts_t[0].cpu().numpy()   # (256, 3) bottle-centric
+    grasp_np  = grasp_pts_t[0].cpu().numpy()   # (256, 3) grasp-object-centric
+    target_np = target_pts_t[0].cpu().numpy()  # (256, 3) grasp-object-centric
+    table_np  = table_pts_t[0].cpu().numpy()   # (256, 3) grasp-object-centric
     pts       = np.concatenate([grasp_np, target_np, table_np], axis=0)
 
     views = [
@@ -157,9 +156,6 @@ if env.camera is not None:
         ("Front (XZ)",    0,  90),
         ("Side (YZ)",     0,   0),
     ]
-    colors = (["dodgerblue"] * len(grasp_np) +
-              ["tomato"]     * len(target_np) +
-              ["orange"]     * len(table_np))
     fig = plt.figure(figsize=(14, 10))
     for idx, (title, elev, azim) in enumerate(views, start=1):
         ax = fig.add_subplot(2, 2, idx, projection="3d")
@@ -173,7 +169,7 @@ if env.camera is not None:
         ax.set_title(title); ax.view_init(elev=elev, azim=azim)
         if idx == 1:
             ax.legend(fontsize=8)
-    fig.suptitle(f"Obs point cloud (bottle-centred) — {args.task}  "
+    fig.suptitle(f"Obs point cloud (grasp-object-centred) — {args.task}  "
                  f"grasp={len(grasp_np)} target={len(target_np)} table={len(table_np)}",
                  fontsize=12, y=1.01)
     plt.tight_layout()
@@ -186,8 +182,6 @@ if env.camera is not None:
 if env.camera is not None:
     try:
         import plotly.graph_objects as go
-
-        # reuse already-computed arrays from above
 
         traces = [
             go.Scatter3d(x=grasp_np[:,0],  y=grasp_np[:,1],  z=grasp_np[:,2],
@@ -202,7 +196,7 @@ if env.camera is not None:
         ]
         fig = go.Figure(data=traces)
         fig.update_layout(
-            title=f"Bottle-centric point cloud — {args.task}  (origin = bottle bottom)",
+            title=f"Grasp-object-centric point cloud — {args.task}  (origin = grasp object bottom)",
             scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z', aspectmode='data'),
             height=700,
         )

@@ -21,12 +21,12 @@ class GraspAndPlaceEnvCfg(BaseManipEnvCfg):
     # ── Initial poses (world frame) ───────────────────────────────────────────
     # Bottle placed at table centre; bowl offset from video estimation.
     # z values set so each object's bottom face rests on the table top (z=0.40 m).
-    bottle_init_pos: tuple = (0.0, 0.0, 0.405)    # 20mm above table top to avoid initial penetration
-    bowl_init_pos:   tuple = (0.3228, 0.0197, 0.405)
+    grasp_object_init_pos: tuple = (0.0, 0.0, 0.405)    # 20mm above table top to avoid initial penetration
+    target_object_init_pos:   tuple = (0.3228, 0.0197, 0.405)
 
     # ── Asset URDF paths ──────────────────────────────────────────────────────
-    bottle_urdf: str = str(_ASSETS_DIR / "grasp"  / "coacd_decomposed_object_one_link.urdf")
-    bowl_urdf:   str = str(_ASSETS_DIR / "target" / "coacd_decomposed_object_one_link.urdf")
+    grasp_object_urdf: str = str(_ASSETS_DIR / "grasp"  / "coacd_decomposed_object_one_link.urdf")
+    target_object_urdf:   str = str(_ASSETS_DIR / "target" / "coacd_decomposed_object_one_link.urdf")
 
 
 TaskEnvCfg = GraspAndPlaceEnvCfg

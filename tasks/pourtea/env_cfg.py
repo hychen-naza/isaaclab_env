@@ -17,12 +17,12 @@ class PourteaEnvCfg(BaseManipEnvCfg):
 
     # ── Initial poses (world frame) ───────────────────────────────────────────
     # Updated by prepare_objects.py for this task's specific object geometry.
-    bottle_init_pos: tuple = (0.0, 0.0, 0.42)
-    bowl_init_pos:   tuple = (0.3538, -0.0034, 0.42)
+    grasp_object_init_pos: tuple = (0.0, 0.0, 0.42)
+    target_object_init_pos:   tuple = (0.3538, -0.0034, 0.42)
 
     # ── Asset URDF paths ──────────────────────────────────────────────────────
-    bottle_urdf: str = str(_ASSETS_DIR / "grasp"  / "coacd_decomposed_object_one_link.urdf")
-    bowl_urdf:   str = str(_ASSETS_DIR / "target" / "coacd_decomposed_object_one_link.urdf")
+    grasp_object_urdf: str = str(_ASSETS_DIR / "grasp"  / "coacd_decomposed_object_one_link.urdf")
+    target_object_urdf:   str = str(_ASSETS_DIR / "target" / "coacd_decomposed_object_one_link.urdf")
 
 
 TaskEnvCfg = PourteaEnvCfg

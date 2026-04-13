@@ -1,0 +1,863 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "RH56E2_R_2026_1_5"
+    doc = """Generated from Composed Stage of root layer /tmp/tmppnu438qj/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_floating/usdex/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_floating/temp/RH56E2_R_2026_1_5_abs.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_floating/RH56E2_R_2026_1_5_abs/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./robot.usda@
+    ]
+    upAxis = "Z"
+)
+
+def Xform "RH56E2_R_2026_1_5" (
+    prepend apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "RH56E2_R_2026_1_5"
+    }
+    kind = "component"
+)
+{
+    float3[] extentsHint = [(-0.035021108, -0.04881986, 8.940697e-11), (0.048689637, 0.13901207, 0.24732552), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.035021108, -0.04881986, 8.940697e-11), (0.048689637, 0.13901207, 0.24732552)]
+
+    def Scope "Materials"
+    {
+    }
+
+    def Scope "Geometry"
+    {
+        def Xform "r_base_link"
+        {
+            def Xform "r_base_link" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/r_base_link>
+            )
+            {
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "right_plam_force_sensor" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/right_plam_force_sensor>
+            )
+            {
+                quatd xformOp:orient = (0.4999981523, 0.5, 0.5000018477, 0.5)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.012296, 0.00036819, 0.1196)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "right_plam_casing" (
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/right_plam_casing>
+            )
+            {
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0.030747)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "right_thumb_1"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.02101, 0.0269, 0.0826)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_thumb_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_thumb_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_thumb_2"
+                {
+                    quatf xformOp:orient = (-0.49999815, -0.5, 0.50000185, 0.5)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.013438, 0.012862, -0.0076)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_thumb_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_2>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_thumb_force_sensor_1" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.639161706, -0.3989278674, 0.5512784123, 0.3583586812)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (-0.023424, 0.033251, 0.007073)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_thumb_3"
+                    {
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (-0.052954, 0.032799, -0.0093372)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                        def Xform "right_thumb_3" (
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/right_thumb_3>
+                        )
+                        {
+                            quatd xformOp:orient = (1, 0, 0, 0)
+                            double3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (0, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+
+                        def Xform "right_thumb_force_sensor_2" (
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_2>
+                        )
+                        {
+                            quatd xformOp:orient = (0.6735143065, -0.3723299205, 0.5609974265, 0.3050095737)
+                            double3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (-0.0080057, 0.016443, 0.0096921)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+
+                        def Xform "right_thumb_4"
+                        {
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (-0.01865, 0.013373, -0.0022731)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                            def Xform "right_thumb_4" (
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_4>
+                            )
+                            {
+                                quatd xformOp:orient = (1, 0, 0, 0)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (0, 0, 0)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "right_thumb_force_sensor_3" (
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_3>
+                            )
+                            {
+                                quatd xformOp:orient = (0.7270409465, -0.2412831187, 0.6100808978, 0.2024727017)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (-0.0076345, 0.020486, 0.0088067)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "right_thumb_force_sensor_4" (
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_4>
+                            )
+                            {
+                                quatd xformOp:orient = (0.4909065068, -0.5880618691, 0.4118102789, 0.4935649037)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (-0.01883, 0.027914, 0.0068326)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "right_thumb_4_1" (
+                                displayName = "right_thumb_4"
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_4_1>
+                            )
+                            {
+                                quatd xformOp:orient = (1, 0, 0, 0)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (0, 0, 0)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "right_thumb_force_sensor_3_1" (
+                                displayName = "right_thumb_force_sensor_3"
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_3_1>
+                            )
+                            {
+                                quatd xformOp:orient = (0.7270409465, -0.2412831187, 0.6100808978, 0.2024727017)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (-0.0076345, 0.020486, 0.0088067)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "right_thumb_force_sensor_4_1" (
+                                displayName = "right_thumb_force_sensor_4"
+                                instanceable = true
+                                prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_4_1>
+                            )
+                            {
+                                quatd xformOp:orient = (0.4909065068, -0.5880618691, 0.4118102789, 0.4935649037)
+                                double3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (-0.01883, 0.027914, 0.0068326)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+                        }
+
+                        def Xform "right_thumb_3_1" (
+                            displayName = "right_thumb_3"
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/right_thumb_3_1>
+                        )
+                        {
+                            quatd xformOp:orient = (1, 0, 0, 0)
+                            double3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (0, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+
+                        def Xform "right_thumb_force_sensor_2_1" (
+                            displayName = "right_thumb_force_sensor_2"
+                            instanceable = true
+                            prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_2_1>
+                        )
+                        {
+                            quatd xformOp:orient = (0.6735143065, -0.3723299205, 0.5609974265, 0.3050095737)
+                            double3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (-0.0080057, 0.016443, 0.0096921)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+                    }
+
+                    def Xform "right_thumb_2_1" (
+                        displayName = "right_thumb_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_thumb_force_sensor_1_1" (
+                        displayName = "right_thumb_force_sensor_1"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_thumb_force_sensor_1_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.639161706, -0.3989278674, 0.5512784123, 0.3583586812)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (-0.023424, 0.033251, 0.007073)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_thumb_1_1" (
+                    displayName = "right_thumb_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_thumb_1_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "right_index_1"
+            {
+                quatf xformOp:orient = (0.7193362, 0.6946621, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.00056467, 0.038679, 0.1564)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_index_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_index_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_index_force_sensor_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_index_force_sensor_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7016863823, -0.06228728592, 0.7043581009, 0.08738525212)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_index_2"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.0034259, 0.032596, 0.00055)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_index_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_2>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_index_force_sensor_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_force_sensor_2>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6985363364, 0.135589987, 0.6939852238, -0.1097582951)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0081655, 0.037446, 0.0060795)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_index_force_sensor_3" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_force_sensor_3>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6587426662, -0.226724565, 0.6697731614, 0.2570174932)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0086237, 0.052572, 0.0060954)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_index_2_1" (
+                        displayName = "right_index_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_index_force_sensor_2_1" (
+                        displayName = "right_index_force_sensor_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_force_sensor_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6985363364, 0.135589987, 0.6939852238, -0.1097582951)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0081655, 0.037446, 0.0060795)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_index_force_sensor_3_1" (
+                        displayName = "right_index_force_sensor_3"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_index_force_sensor_3_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6587426662, -0.226724565, 0.6697731614, 0.2570174932)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0086237, 0.052572, 0.0060954)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_index_1_1" (
+                    displayName = "right_index_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_index_1_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_index_force_sensor_1_1" (
+                    displayName = "right_index_force_sensor_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_index_force_sensor_1_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7016863823, -0.06228728592, 0.7043581009, 0.08738525212)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "right_middle_1"
+            {
+                quatf xformOp:orient = (0.70710546, 0.7071081, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.00056467, 0.0171, 0.157)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_middle_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_middle_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_middle_force_sensor_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_middle_force_sensor_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7031333447, -0.07484453171, 0.703135848, 0.07484480739)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_middle_2"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.0034259, 0.032596, 0.00055)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_middle_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_2>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_middle_force_sensor_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_force_sensor_2>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6948535442, 0.1310598999, 0.6948561072, -0.1310603768)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0090859, 0.040963, 0.0061003)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_middle_force_sensor_3" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_force_sensor_3>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6672905087, -0.2339263856, 0.6672929525, 0.2339272499)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0098294, 0.056051, 0.0061006)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_middle_2_1" (
+                        displayName = "right_middle_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_middle_force_sensor_2_1" (
+                        displayName = "right_middle_force_sensor_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_force_sensor_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6948535442, 0.1310598999, 0.6948561072, -0.1310603768)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0090859, 0.040963, 0.0061003)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_middle_force_sensor_3_1" (
+                        displayName = "right_middle_force_sensor_3"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_middle_force_sensor_3_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6672905087, -0.2339263856, 0.6672929525, 0.2339272499)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0098294, 0.056051, 0.0061006)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_middle_1_1" (
+                    displayName = "right_middle_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_middle_1_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_middle_force_sensor_1_1" (
+                    displayName = "right_middle_force_sensor_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_middle_force_sensor_1_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7031333447, -0.07484453171, 0.703135848, 0.07484480739)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "right_ring_1"
+            {
+                quatf xformOp:orient = (0.6883387, 0.7253894, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.00056467, -0.0045302, 0.15683)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_ring_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_ring_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_ring_force_sensor_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_ring_force_sensor_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7048872709, -0.09366177768, 0.7008762956, 0.05598086119)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_ring_2"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.0034259, 0.032596, 0.00055)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_ring_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_2>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_ring_force_sensor_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_force_sensor_2>
+                    )
+                    {
+                        quatd xformOp:orient = (0.692694068, 0.1032572612, 0.6995270252, -0.1420380622)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0081655, 0.037446, 0.0060795)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_ring_force_sensor_3" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_force_sensor_3>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6722998619, -0.2644873857, 0.6557793021, 0.2191182226)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0086237, 0.052572, 0.0060954)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_ring_2_1" (
+                        displayName = "right_ring_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_ring_force_sensor_2_1" (
+                        displayName = "right_ring_force_sensor_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_force_sensor_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.692694068, 0.1032572612, 0.6995270252, -0.1420380622)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0081655, 0.037446, 0.0060795)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_ring_force_sensor_3_1" (
+                        displayName = "right_ring_force_sensor_3"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_ring_force_sensor_3_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6722998619, -0.2644873857, 0.6557793021, 0.2191182226)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0086237, 0.052572, 0.0060954)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_ring_1_1" (
+                    displayName = "right_ring_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_ring_1_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_ring_force_sensor_1_1" (
+                    displayName = "right_ring_force_sensor_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_ring_force_sensor_1_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7048872709, -0.09366177768, 0.7008762956, 0.05598086119)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "right_little_1"
+            {
+                quatf xformOp:orient = (0.6691366, 0.74313945, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.00056467, -0.025916, 0.15365)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Xform "right_little_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_little_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_little_force_sensor_1" (
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_little_force_sensor_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7061322927, -0.1123744771, 0.6981204748, 0.03710733727)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_little_2"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.0034259, 0.032596, 0.00055)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "right_little_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_2>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_little_force_sensor_2" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_force_sensor_2>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6890462637, 0.08142044395, 0.7024036646, -0.1587924808)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0064512, 0.027683, 0.0061172)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_little_force_sensor_3" (
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_force_sensor_3>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6787722707, -0.2891326845, 0.6452925801, 0.1981614083)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0063972, 0.042707, 0.0061154)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_little_2_1" (
+                        displayName = "right_little_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (1, 0, 0, 0)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_little_force_sensor_2_1" (
+                        displayName = "right_little_force_sensor_2"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_force_sensor_2_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6890462637, 0.08142044395, 0.7024036646, -0.1587924808)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0064512, 0.027683, 0.0061172)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "right_little_force_sensor_3_1" (
+                        displayName = "right_little_force_sensor_3"
+                        instanceable = true
+                        prepend references = @./instances.usda@</Instances/right_little_force_sensor_3_1>
+                    )
+                    {
+                        quatd xformOp:orient = (0.6787722707, -0.2891326845, 0.6452925801, 0.1981614083)
+                        double3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.0063972, 0.042707, 0.0061154)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Xform "right_little_1_1" (
+                    displayName = "right_little_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_little_1_1>
+                )
+                {
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "right_little_force_sensor_1_1" (
+                    displayName = "right_little_force_sensor_1"
+                    instanceable = true
+                    prepend references = @./instances.usda@</Instances/right_little_force_sensor_1_1>
+                )
+                {
+                    quatd xformOp:orient = (0.7061322927, -0.1123744771, 0.6981204748, 0.03710733727)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0.012046, 0.019649, 0.006651)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "r_base_link_1" (
+                displayName = "r_base_link"
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/r_base_link_1>
+            )
+            {
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "right_plam_force_sensor_1" (
+                displayName = "right_plam_force_sensor"
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/right_plam_force_sensor_1>
+            )
+            {
+                quatd xformOp:orient = (0.4999981523, 0.5, 0.5000018477, 0.5)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.012296, 0.00036819, 0.1196)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "right_plam_casing_1" (
+                displayName = "right_plam_casing"
+                instanceable = true
+                prepend references = @./instances.usda@</Instances/right_plam_casing_1>
+            )
+            {
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0.030747)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+    }
+
+    def Scope "Physics"
+    {
+    }
+
+    def Scope "VisualMaterials"
+    {
+    }
+}
+

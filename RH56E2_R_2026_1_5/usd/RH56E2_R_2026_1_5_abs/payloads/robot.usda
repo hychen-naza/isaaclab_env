@@ -1,0 +1,190 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "RH56E2_R_2026_1_5"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpg3_w0zns/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/usdex/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/temp/RH56E2_R_2026_1_5_abs.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/RH56E2_R_2026_1_5_abs/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "RH56E2_R_2026_1_5" (
+    prepend apiSchemas = ["IsaacRobotAPI", "IsaacLinkAPI"]
+)
+{
+    custom rel isaac:physics:robotJoints
+    custom rel isaac:physics:robotLinks
+
+    over "Physics"
+    {
+        over "right_thumb_1_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_index_1_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_middle_1_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_ring_1_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_little_1_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_thumb_2_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_index_2_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_middle_2_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_ring_2_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_little_2_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_thumb_3_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_thumb_4_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "r_base_link" (
+            prepend apiSchemas = ["IsaacLinkAPI"]
+        )
+        {
+            over "right_thumb_1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "right_thumb_2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                    over "right_thumb_3" (
+                        prepend apiSchemas = ["IsaacLinkAPI"]
+                    )
+                    {
+                        over "right_thumb_4" (
+                            prepend apiSchemas = ["IsaacLinkAPI"]
+                        )
+                        {
+                        }
+                    }
+                }
+            }
+
+            over "right_index_1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "right_index_2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "right_middle_1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "right_middle_2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "right_ring_1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "right_ring_2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+
+            over "right_little_1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "right_little_2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                }
+            }
+        }
+    }
+
+    over "fix_base_joint" (
+        prepend apiSchemas = ["IsaacJointAPI"]
+    )
+    {
+    }
+}
+

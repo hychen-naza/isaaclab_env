@@ -177,7 +177,7 @@ class BaseManipEnv(DirectRLEnv):
             kinematic=False,
         ))
 
-        # 5. Table (static, shared across envs)
+        # 5. Table (kinematic, shared across envs)
         table_cfg = sim_utils.CuboidCfg(
             size=(1.2, 0.7, 0.04),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -413,6 +413,25 @@ class BaseManipEnv(DirectRLEnv):
         # depth: (N, H, W, 1) → squeeze to (N, H, W)
         depth = self.camera.data.output["depth"].squeeze(-1)
         N, H, W = depth.shape
+
+        # ── Fix invalid depth pixels (inf, NaN, or out-of-range) ─────────
+        # Replace with average of valid 3×3 neighbours so the unprojected
+        # 3-D point is plausible instead of ±FLT_MAX.
+        bad = ~torch.isfinite(depth) | (depth < 0.01) | (depth > 10.0)
+        if bad.any():
+            # Average-pool the valid depth as a fallback value per pixel
+            valid_depth = depth.clone()
+            valid_depth[bad] = 0.0
+            valid_count = (~bad).float()
+            # Use 3×3 average pooling (pad=1 keeps same spatial size)
+            sum_pool = torch.nn.functional.avg_pool2d(
+                valid_depth.unsqueeze(1), kernel_size=3, stride=1, padding=1,
+                count_include_pad=False).squeeze(1)
+            cnt_pool = torch.nn.functional.avg_pool2d(
+                valid_count.unsqueeze(1), kernel_size=3, stride=1, padding=1,
+                count_include_pad=False).squeeze(1)
+            avg_depth = sum_pool / cnt_pool.clamp(min=1e-6)
+            depth = torch.where(bad, avg_depth, depth)
 
         # Intrinsic matrix: (N, 3, 3)
         K  = self.camera.data.intrinsic_matrices

@@ -33,7 +33,7 @@ OBS_CLOUD_DIM  = N_POINTS * 2 * 3 + N_TABLE_POINTS * 3  # 512*3 + 256*3 = 2304
 @configclass
 class BaseManipEnvCfg(DirectRLEnvCfg):
     # ── Simulation ────────────────────────────────────────────────────────────
-    sim: SimulationCfg = SimulationCfg(dt=1.0 / 60.0, render_interval=2)
+    sim: SimulationCfg = SimulationCfg(dt=1.0 / 120.0, render_interval=4)
 
     # ── Scene ─────────────────────────────────────────────────────────────────
     scene: InteractiveSceneCfg = InteractiveSceneCfg(num_envs=256, env_spacing=2.5)

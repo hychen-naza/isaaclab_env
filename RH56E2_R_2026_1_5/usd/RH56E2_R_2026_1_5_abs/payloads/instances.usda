@@ -1,0 +1,1463 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    doc = """Generated from Composed Stage of root layer /tmp/tmpg3_w0zns/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/usdex/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/temp/RH56E2_R_2026_1_5_abs.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd/RH56E2_R_2026_1_5_abs/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "Instances"
+{
+    def Xform "r_base_link" (
+        prepend references = @./geometries.usd@</Geometries/r_base_link>
+    )
+    {
+        over "r_base_link" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/r_base_link/VisualMaterials/material_1>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_1" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_1>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "r_base_link_1" (
+        prepend references = @./geometries.usd@</Geometries/r_base_link>
+    )
+    {
+        over "r_base_link" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_plam_force_sensor" (
+        prepend references = @./geometries.usd@</Geometries/right_plam_force_sensor>
+    )
+    {
+        over "right_plam_force_sensor" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_plam_force_sensor/VisualMaterials/material_2>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_2" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_plam_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_plam_force_sensor>
+    )
+    {
+        over "right_plam_force_sensor" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_plam_casing" (
+        prepend references = @./geometries.usd@</Geometries/right_plam_casing>
+    )
+    {
+        over "right_plam_casing" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_plam_casing/VisualMaterials/material_3>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_3" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_plam_casing_1" (
+        prepend references = @./geometries.usd@</Geometries/right_plam_casing>
+    )
+    {
+        over "right_plam_casing" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_thumb_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_1>
+    )
+    {
+        over "right_thumb_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_1/VisualMaterials/material_4>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_4" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_1>
+    )
+    {
+        over "right_thumb_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_thumb_2" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_2>
+    )
+    {
+        over "right_thumb_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_2/VisualMaterials/material_5>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_5" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_1>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_2>
+    )
+    {
+        over "right_thumb_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_1>
+    )
+    {
+        over "right_thumb_force_sensor_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_force_sensor_1/VisualMaterials/material_6>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_6" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_1>
+    )
+    {
+        over "right_thumb_force_sensor_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_thumb_3" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_3>
+    )
+    {
+        over "right_thumb_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_3/VisualMaterials/material_7>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_7" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_1>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_3>
+    )
+    {
+        over "right_thumb_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_2" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_2>
+    )
+    {
+        over "right_thumb_force_sensor_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_force_sensor_2/VisualMaterials/material_8>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_8" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_2>
+    )
+    {
+        over "right_thumb_force_sensor_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_thumb_4" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_4>
+    )
+    {
+        over "right_thumb_4" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_4/VisualMaterials/material_9>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_9" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_1>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_4_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_4>
+    )
+    {
+        over "right_thumb_4" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_3" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_3>
+    )
+    {
+        over "right_thumb_force_sensor_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_force_sensor_3/VisualMaterials/material_10>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_10" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_3>
+    )
+    {
+        over "right_thumb_force_sensor_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_4" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_4>
+    )
+    {
+        over "right_thumb_force_sensor_4" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_thumb_force_sensor_4/VisualMaterials/material_11>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_11" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_thumb_force_sensor_4_1" (
+        prepend references = @./geometries.usd@</Geometries/right_thumb_force_sensor_4>
+    )
+    {
+        over "right_thumb_force_sensor_4" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_index_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_1>
+    )
+    {
+        over "right_index_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_index_1/VisualMaterials/material_12>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_12" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_index_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_1>
+    )
+    {
+        over "right_index_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_index_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_1>
+    )
+    {
+        over "right_index_force_sensor_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_index_force_sensor_1/VisualMaterials/material_13>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_13" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_index_force_sensor_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_1>
+    )
+    {
+        over "right_index_force_sensor_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_index_2" (
+        prepend references = @./geometries.usd@</Geometries/right_index_2>
+    )
+    {
+        over "right_index_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_index_2/VisualMaterials/material_14>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_14" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_index_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_2>
+    )
+    {
+        over "right_index_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_index_force_sensor_2" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_2>
+    )
+    {
+        over "right_index_force_sensor_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_index_force_sensor_2/VisualMaterials/material_15>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_15" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_index_force_sensor_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_2>
+    )
+    {
+        over "right_index_force_sensor_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_index_force_sensor_3" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_3>
+    )
+    {
+        over "right_index_force_sensor_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_index_force_sensor_3/VisualMaterials/material_16>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_16" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_index_force_sensor_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_index_force_sensor_3>
+    )
+    {
+        over "right_index_force_sensor_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_middle_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_1>
+    )
+    {
+        over "right_middle_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_middle_1/VisualMaterials/material_17>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_17" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_middle_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_1>
+    )
+    {
+        over "right_middle_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_middle_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_1>
+    )
+    {
+        over "right_middle_force_sensor_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_middle_force_sensor_1/VisualMaterials/material_18>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_18" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_middle_force_sensor_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_1>
+    )
+    {
+        over "right_middle_force_sensor_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_middle_2" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_2>
+    )
+    {
+        over "right_middle_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_middle_2/VisualMaterials/material_19>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_19" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_middle_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_2>
+    )
+    {
+        over "right_middle_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_middle_force_sensor_2" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_2>
+    )
+    {
+        over "right_middle_force_sensor_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_middle_force_sensor_2/VisualMaterials/material_20>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_20" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_middle_force_sensor_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_2>
+    )
+    {
+        over "right_middle_force_sensor_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_middle_force_sensor_3" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_3>
+    )
+    {
+        over "right_middle_force_sensor_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_middle_force_sensor_3/VisualMaterials/material_21>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_21" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_middle_force_sensor_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_middle_force_sensor_3>
+    )
+    {
+        over "right_middle_force_sensor_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_ring_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_1>
+    )
+    {
+        over "right_ring_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_ring_1/VisualMaterials/material_22>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_22" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_ring_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_1>
+    )
+    {
+        over "right_ring_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_ring_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_1>
+    )
+    {
+        over "right_ring_force_sensor_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_ring_force_sensor_1/VisualMaterials/material_23>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_23" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_ring_force_sensor_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_1>
+    )
+    {
+        over "right_ring_force_sensor_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_ring_2" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_2>
+    )
+    {
+        over "right_ring_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_ring_2/VisualMaterials/material_24>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_24" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_ring_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_2>
+    )
+    {
+        over "right_ring_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_ring_force_sensor_2" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_2>
+    )
+    {
+        over "right_ring_force_sensor_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_ring_force_sensor_2/VisualMaterials/material_25>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_25" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_ring_force_sensor_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_2>
+    )
+    {
+        over "right_ring_force_sensor_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_ring_force_sensor_3" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_3>
+    )
+    {
+        over "right_ring_force_sensor_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_ring_force_sensor_3/VisualMaterials/material_26>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_26" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_ring_force_sensor_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_ring_force_sensor_3>
+    )
+    {
+        over "right_ring_force_sensor_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_little_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_1>
+    )
+    {
+        over "right_little_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_little_1/VisualMaterials/material_27>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_27" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_4>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_little_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_1>
+    )
+    {
+        over "right_little_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_little_force_sensor_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_1>
+    )
+    {
+        over "right_little_force_sensor_1" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_little_force_sensor_1/VisualMaterials/material_28>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_28" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_little_force_sensor_1_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_1>
+    )
+    {
+        over "right_little_force_sensor_1" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_little_2" (
+        prepend references = @./geometries.usd@</Geometries/right_little_2>
+    )
+    {
+        over "right_little_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_little_2/VisualMaterials/material_29>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_29" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_little_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_2>
+    )
+    {
+        over "right_little_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+        }
+    }
+
+    def Xform "right_little_force_sensor_2" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_2>
+    )
+    {
+        over "right_little_force_sensor_2" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_little_force_sensor_2/VisualMaterials/material_30>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_30" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_little_force_sensor_2_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_2>
+    )
+    {
+        over "right_little_force_sensor_2" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "right_little_force_sensor_3" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_3>
+    )
+    {
+        over "right_little_force_sensor_3" (
+            apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            custom rel material:binding
+            prepend rel material:binding = </Instances/right_little_force_sensor_3/VisualMaterials/material_31>
+        }
+
+        def Scope "VisualMaterials"
+        {
+            def Material "material_31" (
+                instanceable = true
+                prepend references = @./materials.usda@</Materials/material_2>
+            )
+            {
+            }
+        }
+    }
+
+    def Xform "right_little_force_sensor_3_1" (
+        prepend references = @./geometries.usd@</Geometries/right_little_force_sensor_3>
+    )
+    {
+        over "right_little_force_sensor_3" (
+            apiSchemas = ["PhysicsCollisionAPI", "NewtonCollisionAPI", "PhysicsMeshCollisionAPI", "NewtonMeshCollisionAPI"]
+        )
+        {
+            token physics:approximation = "convexHull"
+            token purpose = "guide"
+
+            def Scope "surface"
+            {
+                def Scope "friction"
+                {
+                    def Scope "ode"
+                    {
+                        def Scope "mu"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+
+                        def Scope "mu2"
+                        {
+                            custom string urdf:text = "0.25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

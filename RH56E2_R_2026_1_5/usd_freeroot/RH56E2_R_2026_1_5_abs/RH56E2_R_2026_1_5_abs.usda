@@ -1,0 +1,47 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "RH56E2_R_2026_1_5"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpq5wvsbfx/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_freeroot/usdex/RH56E2_R_2026_1_5.usdc
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_freeroot/temp/RH56E2_R_2026_1_5_abs.usd
+
+
+Generated from Composed Stage of root layer /home/hongyi/scalevideomanip/isaacsim_scene/RH56E2_R_2026_1_5/usd_freeroot/RH56E2_R_2026_1_5_abs/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "RH56E2_R_2026_1_5" (
+    prepend references = @./payloads/base.usda@
+    variants = {
+        string Physics = "physx"
+    }
+    append variantSets = "Physics"
+)
+{
+    variantSet "Physics" = {
+        "none" {
+
+        }
+        "physics" (
+            prepend payload = @./payloads/Physics/physics.usda@
+        ) {
+
+        }
+        "physx" (
+            prepend payload = @./payloads/Physics/physx.usda@
+        ) {
+
+        }
+    }
+}
+

@@ -1,7 +1,13 @@
-"""Evaluate IL policy in the GraspAndPlace Isaac Lab env.
+"""Evaluate IL policy in the GraspAndPlace Isaac Lab env with the RH56E2 hand.
 
-Usage
------
+Uses hybrid control (same as base_env.py training convention):
+  - Wrist: kinematic write_root_pose_to_sim (perfect tracking)
+  - Fingers: PD targets via set_joint_position_target (physical interaction)
+
+Before importing tasks.grasp_and_place, we monkey-patch
+robots.inspire_hand_cfg so base_env.py spawns the RH56E2 hand.
+
+Usage:
     python eval.py --il_checkpoint /path/to/policy_checkpoint/best.pt
 """
 
@@ -10,11 +16,19 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-import pdb
+
 # ── 1. App launcher (MUST come before any omni / isaaclab imports) ─────────────
 from isaaclab.app import AppLauncher
 
 _CAMERA_KIT = str(Path(__file__).parent / "camera_headless.kit")
+_HERE = Path(__file__).parent.resolve()
+_RH56E2_DIR = _HERE / "RH56E2_R_2026_1_5"
+_RH56E2_URDF = _RH56E2_DIR / "urdf" / "RH56E2_R_2026_1_5_abs.urdf"
+# We use the "freeroot" USD with the auto-generated PhysicsFixedJoint root_joint
+# stripped, so the root body can actually move under external forces (required
+# for the physics-based PD wrist tracker below).
+_RH56E2_USD_DIR = _RH56E2_DIR / "usd_freeroot"
+_RH56E2_USD = _RH56E2_USD_DIR / _RH56E2_URDF.stem / f"{_RH56E2_URDF.stem}.usda"
 
 parser = argparse.ArgumentParser(description="Evaluate IL policy in GraspAndPlace env")
 parser.add_argument("--il_checkpoint", type=str,
@@ -33,6 +47,9 @@ parser.add_argument("--video_env",    type=int, default=0,
                     help="Which env index to record")
 parser.add_argument("--video_out",    type=str, default="eval_il_policy.mp4")
 parser.add_argument("--video_fps",    type=int, default=30)
+parser.add_argument("--hold_init",    action="store_true",
+                    help="Ignore IL policy and hold the frame-0 wrist pose throughout — "
+                         "isolates PD controller stability from IL tracking")
 
 AppLauncher.add_app_launcher_args(parser)
 args = parser.parse_args()
@@ -52,12 +69,129 @@ from scipy.spatial.transform import Rotation
 
 sys.path.insert(0, str(Path(__file__).parent / "policy" / "il_dmp"))
 
+# ── 2a. Convert RH56E2 URDF → freeroot USD (no auto root_joint) if not cached
+def _strip_root_fixed_joint(usd_dir: Path):
+    """Remove the auto-generated PhysicsFixedJoint 'root_joint' that the URDF
+    importer adds to URDFs whose root link is the actual physical body, even
+    when fix_base=False. Without this, the articulation root body is pinned
+    and cannot move under external forces (only kinematic write_root_pose_to_sim
+    can override the pin)."""
+    physics_usda = usd_dir / _RH56E2_URDF.stem / "payloads" / "Physics" / "physics.usda"
+    if not physics_usda.exists():
+        print(f"[eval] WARNING: physics.usda not found at {physics_usda}")
+        return
+    text = physics_usda.read_text()
+    import re
+    pattern = r'[ \t]*def PhysicsFixedJoint "root_joint"\s*\{[^}]*\}\n?'
+    new_text, n = re.subn(pattern, '', text)
+    if n > 0:
+        physics_usda.write_text(new_text)
+        print(f"[eval] Stripped {n} root_joint block(s) from {physics_usda.name}")
+
+
+if not _RH56E2_USD.exists():
+    print(f"[eval] Converting {_RH56E2_URDF} → {_RH56E2_USD}")
+    from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg
+    UrdfConverter(UrdfConverterCfg(
+        asset_path=str(_RH56E2_URDF),
+        usd_dir=str(_RH56E2_USD_DIR),
+        fix_base=False,
+        merge_fixed_joints=True,
+        self_collision=False,
+        merge_mesh=False,
+    ))
+    _strip_root_fixed_joint(_RH56E2_USD_DIR)
+print(f"[eval] RH56E2 USD: {_RH56E2_USD}")
+
+# ── 2b. Monkey-patch robots.inspire_hand_cfg BEFORE tasks.* import ───────────
+# This makes base_env.py spawn the RH56E2 hand instead of the old inspire one,
+# without editing any shared source files. base_env.py does
+# `from robots.inspire_hand_cfg import FINGER_JOINTS, make_inspire_hand_cfg, ...`
+# which evaluates those names AT IMPORT TIME, so we must mutate the module
+# attributes BEFORE that import runs.
+import robots.inspire_hand_cfg as _inspire_cfg
+
+_RH56E2_DRIVEN_JOINTS = [
+    "right_thumb_1_joint",   # thumb yaw
+    "right_thumb_2_joint",   # thumb pitch (drives thumb_3, thumb_4 via mimic in URDF)
+    "right_index_1_joint",
+    "right_middle_1_joint",
+    "right_ring_1_joint",
+    "right_little_1_joint",
+]
+
+_RH56E2_FINGER_JOINT_LIMITS = {
+    "right_thumb_1_joint":   (0.0, 1.658),
+    "right_thumb_2_joint":   (0.0, 0.62),
+    "right_index_1_joint":   (0.0, 1.4381),
+    "right_middle_1_joint":  (0.0, 1.4381),
+    "right_ring_1_joint":    (0.0, 1.4381),
+    "right_little_1_joint":  (0.0, 1.4381),
+}
+
+
+def _make_rh56e2_hand_cfg(prim_path, fix_base=False, init_pos=(0.0, 0.0, 0.9)):
+    """Drop-in replacement for inspire_hand_cfg.make_inspire_hand_cfg()."""
+    import isaaclab.sim as sim_utils
+    from isaaclab.actuators import ImplicitActuatorCfg
+    from isaaclab.assets import ArticulationCfg
+
+    return ArticulationCfg(
+        prim_path=prim_path,
+        spawn=sim_utils.UsdFileCfg(
+            usd_path=str(_RH56E2_USD),
+            activate_contact_sensors=True,
+            articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                articulation_enabled=True,
+                fix_root_link=False,
+            ),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                disable_gravity=True,
+            ),
+        ),
+        init_state=ArticulationCfg.InitialStateCfg(
+            pos=init_pos,
+            joint_pos={j: 0.0 for j in _RH56E2_DRIVEN_JOINTS},
+        ),
+        actuators={
+            "fingers": ImplicitActuatorCfg(
+                joint_names_expr=_RH56E2_DRIVEN_JOINTS,
+                stiffness=10.0,
+                damping=0.2,
+            ),
+        },
+    )
+
+
+def _ensure_rh56e2_usd(fix_base: bool = False) -> str:
+    """Drop-in replacement for inspire_hand_cfg.ensure_hand_usd()."""
+    return str(_RH56E2_USD)
+
+
+_inspire_cfg.FINGER_JOINTS = _RH56E2_DRIVEN_JOINTS
+_inspire_cfg.FINGER_JOINT_LIMITS = _RH56E2_FINGER_JOINT_LIMITS
+_inspire_cfg.make_inspire_hand_cfg = _make_rh56e2_hand_cfg
+_inspire_cfg.ensure_hand_usd = _ensure_rh56e2_usd
+print(f"[eval] Monkey-patched robots.inspire_hand_cfg → RH56E2")
+
+# ── Orientation offset between OLD inspire root frame and NEW RH56E2 wrist ──
+# Training data Eulers were recorded against the OLD hand which had a baked
+# rpy=(0,-π,-π/2) in base→hand_base_link. Empirically, composing the new hand
+# with R(0, -π/2, 0) on the right gives the same visual orientation.
+HAND_ROOT_OFFSET = Rotation.from_euler("XYZ", [0.0, -1.5708, 0.0])
+
+
+def apply_root_offset(quat_xyzw_train: np.ndarray) -> np.ndarray:
+    """Compose training-frame quat with HAND_ROOT_OFFSET."""
+    return (Rotation.from_quat(quat_xyzw_train) * HAND_ROOT_OFFSET).as_quat()
+
+
 import tasks.grasp_and_place  # noqa: F401
 from tasks.grasp_and_place.env     import GraspAndPlaceEnv
 from tasks.grasp_and_place.env_cfg import GraspAndPlaceEnvCfg
 from tasks.grasp_and_place.env_cfg import N_POINTS, N_TABLE_POINTS, OBS_CLOUD_DIM, OBS_STATE_DIM
 
-from policy.il_utils import build_il_obs_with_scene_pcs, load_il_policy_pt
+from policy.il_utils import build_il_obs_with_scene_pcs, load_il_policy_pt, _ACTUATED_JOINT_IDX
 
 # ── 3. Build environment ───────────────────────────────────────────────────────
 
@@ -115,7 +249,9 @@ _init_pos_world = (torch.tensor(_frame0_wrist[:3], dtype=torch.float32, device=d
                    + bottle_center).unsqueeze(0)
 _init_euler = _frame0_wrist[3:6].astype(np.float64)
 _init_rot = Rotation.from_euler('XYZ', _init_euler)
-_init_qxyzw = _init_rot.as_quat()
+_init_qxyzw_train = _init_rot.as_quat()
+# Apply RH56E2 wrist orientation offset
+_init_qxyzw = apply_root_offset(_init_qxyzw_train)
 _init_quat = torch.tensor(
     [[_init_qxyzw[0], _init_qxyzw[1], _init_qxyzw[2], _init_qxyzw[3]]],
     dtype=torch.float32, device=device,
@@ -123,14 +259,64 @@ _init_quat = torch.tensor(
 _init_joints = torch.tensor(_frame0_fingers, dtype=torch.float32, device=device).unsqueeze(0)
 _init_pose = torch.cat([_init_pos_world, _init_quat.expand(args.num_envs, -1)], dim=-1)
 
+# Build remapping from training data joint order (OLD URDF) to RH56E2 sim joint order
+# Training data is in OLD URDF order:
+#   [thumb_yaw, thumb_pitch, thumb_inter, thumb_distal, index_prox, index_inter,
+#    middle_prox, middle_inter, ring_prox, ring_inter, pinky_prox, pinky_inter]
+_TRAINING_JOINT_NAMES = [
+    "thumb_proximal_yaw_joint",   "thumb_proximal_pitch_joint",
+    "thumb_intermediate_joint",   "thumb_distal_joint",
+    "index_proximal_joint",       "index_intermediate_joint",
+    "middle_proximal_joint",      "middle_intermediate_joint",
+    "ring_proximal_joint",        "ring_intermediate_joint",
+    "pinky_proximal_joint",       "pinky_intermediate_joint",
+]
+# RH56E2 sim joint name → semantically-equivalent OLD URDF joint name
+RH56E2_TO_OLD_NAME = {
+    "right_thumb_1_joint":   "thumb_proximal_yaw_joint",
+    "right_thumb_2_joint":   "thumb_proximal_pitch_joint",
+    "right_thumb_3_joint":   "thumb_intermediate_joint",
+    "right_thumb_4_joint":   "thumb_distal_joint",
+    "right_index_1_joint":   "index_proximal_joint",
+    "right_index_2_joint":   "index_intermediate_joint",
+    "right_middle_1_joint":  "middle_proximal_joint",
+    "right_middle_2_joint":  "middle_intermediate_joint",
+    "right_ring_1_joint":    "ring_proximal_joint",
+    "right_ring_2_joint":    "ring_intermediate_joint",
+    "right_little_1_joint":  "pinky_proximal_joint",
+    "right_little_2_joint":  "pinky_intermediate_joint",
+}
+_sim_joint_names = list(env.robot.joint_names)
+# For each sim slot, find the corresponding training slot
+TRAIN_TO_SIM_PERM = [
+    _TRAINING_JOINT_NAMES.index(RH56E2_TO_OLD_NAME[n]) for n in _sim_joint_names
+]
+print(f"[eval] sim joint order: {_sim_joint_names}")
+print(f"[eval] train→sim permutation: {TRAIN_TO_SIM_PERM}")
+
+def remap_train_to_sim(joints_train: torch.Tensor) -> torch.Tensor:
+    """Remap (N, 12) joints from training (OLD URDF) order → RH56E2 sim order."""
+    return joints_train[:, TRAIN_TO_SIM_PERM]
+
+_init_joints_sim = remap_train_to_sim(_init_joints)
+
+# Frame-0 init: kinematically teleport the hand to the start pose AND set the
+# finger actuator targets to the init pose. Without setting the actuator
+# targets, the joint PD controllers would try to drive the fingers from their
+# kinematically-written init pose back to their default target (0), generating
+# large reaction torques that propagate through the articulation and destabilise
+# the floating root body.
 env.robot.write_root_pose_to_sim(_init_pose)
 env.robot.write_root_velocity_to_sim(torch.zeros(args.num_envs, 6, device=device))
-env.robot.write_joint_state_to_sim(_init_joints, torch.zeros_like(_init_joints))
+env.robot.write_joint_state_to_sim(_init_joints_sim, torch.zeros_like(_init_joints_sim))
+env.robot.set_joint_position_target(_init_joints_sim)
 env.scene.write_data_to_sim()
 env.sim.step(render=False)
-# Re-pin after physics step
+# Re-pin after physics step.
 env.robot.write_root_pose_to_sim(_init_pose)
 env.robot.write_root_velocity_to_sim(torch.zeros(args.num_envs, 6, device=device))
+env.robot.write_joint_state_to_sim(_init_joints_sim, torch.zeros_like(_init_joints_sim))
+env.robot.set_joint_position_target(_init_joints_sim)
 env.scene.write_data_to_sim()
 # Render so the camera captures the teleported pose
 env.sim.render()
@@ -185,7 +371,7 @@ while episodes_done < args.num_episodes and step_idx < args.max_steps:
         n_obj_points=N_POINTS,
         n_table_points=N_TABLE_POINTS,
     )
-    # Sanitize NaN in all il_obs tensors (synthetic hand PC or point clouds may have NaN)
+    # Sanitize NaN in all il_obs tensors
     for k in il_obs:
         il_obs[k] = torch.nan_to_num(il_obs[k], nan=0.0)
 
@@ -194,6 +380,12 @@ while episodes_done < args.num_episodes and step_idx < args.max_steps:
     # but we know the hand is at the orientation we last commanded.
     obs_euler_raw = il_obs["qpos_wrist_pose"][0, -1, 3:6].cpu().numpy()
     il_obs["qpos_wrist_pose"][0, -1, 3:6] = torch.tensor(prev_euler, dtype=torch.float32, device=device)
+
+    # Override the policy's finger-joint observation with the training-frame
+    # frame-0 values (in OLD URDF order). The env now exposes finger joints in
+    # RH56E2 sim order which the IL policy was not trained on, so we feed it
+    # the constant training values it expects.
+    il_obs["qpos_finger_joints"][0, -1, :] = _init_joints[0]
 
     obs_wrist = il_obs["qpos_wrist_pose"][0, -1].cpu().numpy()
     print(f"[eval chunk_start step={step_idx}]  obs_euler_raw={obs_euler_raw.tolist()}  obs_euler_override={prev_euler.tolist()}")
@@ -204,51 +396,120 @@ while episodes_done < args.num_episodes and step_idx < args.max_steps:
         raw_pred = il_model.forward(il_obs)  # (N, chunk, action_dim) raw deltas
         il_act = il_model.get_action(il_obs)  # (N, chunk, action_dim) absolute targets
 
-    # NaN guard on full chunk
+    # ── Debug: save PC plot + append state to single txt ────────────────────
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    _dbg_dir = Path(_HERE / "debug")
+    _dbg_dir.mkdir(exist_ok=True)
+    # 1. Append robot state to single txt
+    with open(_dbg_dir / "states.txt", "a") as _sf:
+        _sf.write(f"step={step_idx}  wrist_obs={obs_wrist.tolist()}  "
+                  f"euler_raw={obs_euler_raw.tolist()}  euler_override={prev_euler.tolist()}  "
+                  f"raw_pred={raw_pred[0,0].cpu().tolist()}  "
+                  f"il_act={il_act[0,0].cpu().tolist()}  "
+                  f"has_nan={bool(torch.isnan(il_act).any())}\n")
+    # 2. PC observations → matplotlib 3-view PNG
+    _pc_keys = ["grasp_object_pc", "target_object_pc", "table_pc", "robot_hand_pc"]
+    _pc_colors = ["red", "blue", "brown", "green"]
+    fig = plt.figure(figsize=(18, 5))
+    for vi, (elev, azim, title) in enumerate([(25, 35, "perspective"), (0, 0, "front"), (90, -90, "top")]):
+        ax = fig.add_subplot(1, 3, vi + 1, projection="3d")
+        for pk, pc in zip(_pc_keys, _pc_colors):
+            if pk in il_obs:
+                pts = il_obs[pk][0, -1].cpu().numpy() if il_obs[pk].dim() == 4 else il_obs[pk][0].cpu().numpy()
+                ax.scatter(pts[:, 0], pts[:, 1], pts[:, 2], s=2, c=pc, label=pk, alpha=0.6)
+        ax.set_title(title)
+        ax.set_xlabel("X"); ax.set_ylabel("Y"); ax.set_zlabel("Z")
+        ax.view_init(elev=elev, azim=azim)
+        if vi == 0:
+            ax.legend(fontsize=6, loc="upper left")
+    fig.suptitle(f"step {step_idx}  wrist={obs_wrist[:3].tolist()}", fontsize=10)
+    plt.tight_layout()
+    plt.savefig(_dbg_dir / f"pc_step{step_idx:04d}.png", dpi=100)
+    plt.close(fig)
+
+    # NaN guard on full chunk: hold previous pose and capture frames so the
+    # video doesn't stop just because the policy went off the rails.
     if torch.isnan(il_act).any():
-        print(f"[eval step={step_idx}] WARNING: NaN in model output, holding previous pose")
-        step_idx += 1
-        episode_steps += 1
+        # Save the observation that caused NaN for debugging
+        nan_debug = {
+            "step": step_idx,
+            "raw_pred": raw_pred.cpu().numpy(),
+            "il_act": il_act.cpu().numpy(),
+        }
+        for k, v in il_obs.items():
+            if torch.is_tensor(v):
+                nan_debug[f"obs_{k}"] = v.cpu().numpy()
+                nan_count = int(torch.isnan(v).sum().item())
+                print(f"[eval NaN debug] obs_{k}: shape={list(v.shape)} nan_count={nan_count} "
+                      f"min={v[~torch.isnan(v)].min().item():.4f} max={v[~torch.isnan(v)].max().item():.4f}" if nan_count < v.numel() else
+                      f"[eval NaN debug] obs_{k}: shape={list(v.shape)} ALL NaN")
+        raw_nan = int(torch.isnan(raw_pred).sum().item())
+        print(f"[eval NaN debug] raw_pred nan_count={raw_nan} "
+              f"raw_pred_range=[{raw_pred[~torch.isnan(raw_pred)].min().item():.4f}, "
+              f"{raw_pred[~torch.isnan(raw_pred)].max().item():.4f}]" if raw_nan < raw_pred.numel() else
+              f"[eval NaN debug] raw_pred ALL NaN")
+        np.save(f"/tmp/eval_nan_debug_step{step_idx}.npy", nan_debug)
+        print(f"[eval step={step_idx}] WARNING: NaN in model output — saved debug to /tmp/eval_nan_debug_step{step_idx}.npy")
+        n_hold = min(N_EXEC, args.max_steps - step_idx)
+        for _ in range(n_hold):
+            env.sim.render()
+            env.scene.update(dt=dt)
+            if args.save_video and env.camera is not None:
+                _frame = env.camera.data.output["rgb"][args.video_env, :, :, :3].cpu().numpy().astype(np.uint8)
+                rgb_frames.append(_frame)
+            step_idx += 1
+            episode_steps += 1
         continue
 
-    # Finger joints: keep current from observation (model doesn't predict fingers)
-    all_joint_pos = il_obs["qpos_finger_joints"][:, -1, :]  # (N, 12)
+    # Finger joints: hold the init pose throughout the trajectory (no oscillation)
+    all_joint_pos = _init_joints  # (N, 12) — fixed from training data frame-0
 
     n_to_exec = min(N_EXEC, il_act.shape[1], args.max_steps - step_idx)
     for chunk_step in range(n_to_exec):
-        wrist_target = il_act[:, chunk_step, :6]  # (N, 6)
+        if args.hold_init:
+            # DIAGNOSTIC: ignore IL output, hold the frame-0 pose
+            pos_world = _init_pos_world.clone()
+            quat_xyzw = np.asarray(_init_qxyzw, dtype=np.float64)
+            euler_np = np.array(_init_euler, dtype=np.float64)
+        else:
+            wrist_target = il_act[:, chunk_step]  # (N, action_dim)
 
-        # Position: bottle-centred → world frame, clamped to workspace
-        pos_world = (wrist_target[:, :3] + bottle_center.unsqueeze(0)).clamp(ws_min, ws_max)
+            # Position: bottle-centred → world frame, clamped to workspace
+            pos_world = (wrist_target[:, :3] + bottle_center.unsqueeze(0)).clamp(ws_min, ws_max)
 
-        # Orientation: use model's predicted euler if action_dim >= 6
-        euler_np = wrist_target[0, 3:6].cpu().numpy().astype(np.float64)
-        rot = Rotation.from_euler('XYZ', euler_np)
-        quat_xyzw = rot.as_quat()
+            # Orientation: if model predicts 6-DOF, use predicted euler;
+            # if 3-DOF (position-only), hold the initial orientation.
+            if wrist_target.shape[-1] >= 6:
+                euler_np = wrist_target[0, 3:6].cpu().numpy().astype(np.float64)
+                quat_xyzw_train = Rotation.from_euler('XYZ', euler_np).as_quat()
+                quat_xyzw = apply_root_offset(quat_xyzw_train)
+            else:
+                euler_np = np.array(_init_euler, dtype=np.float64)
+                quat_xyzw = np.asarray(_init_qxyzw, dtype=np.float64)
         quat_tensor = torch.tensor(
             [[quat_xyzw[0], quat_xyzw[1], quat_xyzw[2], quat_xyzw[3]]],
             dtype=torch.float32, device=device,
         )
         
-        # Compute velocities from finite differences
-        lin_vel   = (pos_world - prev_pos_world) / dt
-        joint_vel = (all_joint_pos - prev_joint_pos) / dt
-        ang_vel   = torch.zeros(args.num_envs, 3, device=device)
-        root_vel  = torch.cat([lin_vel, ang_vel], dim=-1)
-
+        # ── Hybrid control: kinematic wrist + dynamic fingers ───────────────
+        # Matches base_env.py training convention.
         root_pose = torch.cat([pos_world, quat_tensor.expand(args.num_envs, -1)], dim=-1)
-
-        # Write pose + velocity, step physics, re-pin
         env.robot.write_root_pose_to_sim(root_pose)
-        env.robot.write_root_velocity_to_sim(root_vel)
-        env.robot.write_joint_state_to_sim(all_joint_pos, joint_vel)
+        env.robot.write_root_velocity_to_sim(torch.zeros(args.num_envs, 6, device=device))
+
+        all_joint_pos_sim = remap_train_to_sim(all_joint_pos)
+        env.robot.set_joint_position_target(all_joint_pos_sim)
         env.scene.write_data_to_sim()
         env.sim.step(render=False)
-        env.robot.write_root_pose_to_sim(root_pose)
-        env.robot.write_root_velocity_to_sim(root_vel)
-        env.scene.write_data_to_sim()
-        env.sim.render()
         env.scene.update(dt=dt)
+        env.sim.render()
+
+        # Bookkeeping for finite-difference velocity (still used by logs)
+        lin_vel = (pos_world - prev_pos_world) / dt
+        joint_vel = (all_joint_pos - prev_joint_pos) / dt
+        root_pose = torch.cat([pos_world, quat_tensor.expand(args.num_envs, -1)], dim=-1)
 
         env._hand_pos_desired[:] = pos_world
         prev_pos_world = pos_world.clone()
@@ -262,23 +523,30 @@ while episodes_done < args.num_episodes and step_idx < args.max_steps:
         # Log: current hand pose (from sim) and action (from model)
         hand_pos_w = wp.to_torch(env.robot.data.root_pos_w)[0].cpu().numpy()
         hand_quat_w = wp.to_torch(env.robot.data.root_quat_w)[0].cpu().numpy()
+        actual_joint_pos = wp.to_torch(env.robot.data.joint_pos)[0].cpu().numpy()  # sim order
+        target_joint_pos = all_joint_pos_sim[0].cpu().numpy()  # sim order
         # Convert sim quat (xyzw) to euler for comparison
         hand_euler = Rotation.from_quat(hand_quat_w).as_euler('XYZ')
         step_log = {
             "obs_wrist_bc": il_obs["qpos_wrist_pose"][0, -1].cpu().numpy(),
             "raw_pred": raw_pred[0, chunk_step].cpu().numpy(),
-            "decoded_wrist": wrist_target[0].cpu().numpy(),
+            "decoded_wrist": pos_world[0].cpu().numpy(),  # use commanded pos (works in both --hold_init and IL modes)
             "pos_world": pos_world[0].cpu().numpy(),
             "euler_action": euler_np,
             "hand_pos_w": hand_pos_w,
             "hand_euler": hand_euler,
+            "target_joints": target_joint_pos,
+            "actual_joints": actual_joint_pos,
         }
         eval_log.append(step_log)
-        print(f"[eval step={step_idx:3d} chunk={chunk_step}]"
-              f"  hand_pos_w=[{hand_pos_w[0]:.4f}, {hand_pos_w[1]:.4f}, {hand_pos_w[2]:.4f}]"
-              f"  hand_euler=[{hand_euler[0]:.4f}, {hand_euler[1]:.4f}, {hand_euler[2]:.4f}]"
-              f"  action_pos_bc=[{wrist_target[0,0]:.4f}, {wrist_target[0,1]:.4f}, {wrist_target[0,2]:.4f}]"
-              f"  action_euler=[{euler_np[0]:.4f}, {euler_np[1]:.4f}, {euler_np[2]:.4f}]")
+        # Print only the 6 actuated joints (sim ids 0-5) for clarity
+        sim_names = list(env.robot.joint_names)
+        actuated_print = []
+        for sid in env._finger_joint_ids:
+            actuated_print.append(f"{sim_names[sid][:15]}: tgt={target_joint_pos[sid]:+.3f} act={actual_joint_pos[sid]:+.3f} err={actual_joint_pos[sid]-target_joint_pos[sid]:+.3f}")
+        print(f"[eval step={step_idx:3d} chunk={chunk_step}]  pos_w={[round(x,3) for x in hand_pos_w.tolist()]}")
+        for line in actuated_print:
+            print(f"    {line}")
 
         prev_euler = euler_np.copy()  # update for next chunk's unwrap
 

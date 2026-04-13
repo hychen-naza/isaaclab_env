@@ -74,9 +74,13 @@ def make_inspire_hand_cfg(
         prim_path=prim_path,
         spawn=sim_utils.UsdFileCfg(
             usd_path=usd_path,
+            activate_contact_sensors=True,
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
                 articulation_enabled=True,
-                fix_root_link=True,  # kinematic root: generates contact forces on dynamic bodies
+                fix_root_link=False,  # dynamic root with fixed joint (like IsaacGym fix_base_link)
+            ),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                disable_gravity=True,
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
@@ -86,8 +90,8 @@ def make_inspire_hand_cfg(
         actuators={
             "fingers": ImplicitActuatorCfg(
                 joint_names_expr=FINGER_JOINTS,
-                stiffness=40.0,
-                damping=2.0,
+                stiffness=3.0,
+                damping=0.1,
             ),
         },
     )

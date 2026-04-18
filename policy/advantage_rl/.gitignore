@@ -1,0 +1,3 @@
+# RL iteration outputs: rollouts (videos, npz), merged zarrs, trained ckpts.
+# These are reproducible from the code + seeds and are too large to track (GBs).
+data/
